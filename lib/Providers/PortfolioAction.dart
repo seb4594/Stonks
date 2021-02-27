@@ -223,13 +223,16 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> getLiveData() async {
+    print('Starting Getlive Data');
+    print(currentStocks.length);
+    print(_stocks.length);
     double startEq = 0.0;
     double lastEq = 0.0;
 
     // Stock stock = _stocks.firstWhere((stock) => stock.id == id);\
     // final stockIndex = _stocks.indexWhere((stock) => stock.id == id);
 
-    final openPositions = _stocks;
+    final openPositions = currentStocks;
 
     List stockTickers = [];
     openPositions.forEach((stock) {
@@ -249,26 +252,28 @@ class PortfolioAction with ChangeNotifier {
       final extractedData = jsonDecode(response.body) as Map;
       print(extractedData);
 
-      openPositions.forEach((stock) {
-        //// RENEW PREFORMANCE FOR EACH STOCK
-        lastEq = (lastEq + stock.amount * extractedData[stock.ticker][0]['c'])
-            .roundToDouble();
+      openPositions.forEach(
+        (stock) {
+          //// RENEW PREFORMANCE FOR EACH STOCK
+          lastEq = (lastEq + stock.amount * extractedData[stock.ticker][0]['c'])
+              .roundToDouble();
 
-        int stockIndex =
-            _stocks.indexWhere((element) => element.id == stock.id);
+          int stockIndex =
+              _stocks.indexWhere((element) => element.id == stock.id);
 
-        // _stocks.removeAt(stockIndex);
+          // _stocks.removeAt(stockIndex);
 
-        _stocks[stockIndex] = Stock(
-            amount: stock.amount,
-            company: stock.company,
-            condition: stock.condition,
-            id: stock.id,
-            price: stock.price,
-            ticker: stock.ticker,
-            time: stock.time,
-            livePrice: extractedData[stock.ticker][0]['c']);
-      });
+          _stocks[stockIndex] = Stock(
+              amount: stock.amount,
+              company: stock.company,
+              condition: stock.condition,
+              id: stock.id,
+              price: stock.price,
+              ticker: stock.ticker,
+              time: stock.time,
+              livePrice: extractedData[stock.ticker][0]['c']);
+        },
+      );
 
       final performance = ((startEq - lastEq) / startEq) * 100 * -1;
 

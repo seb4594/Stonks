@@ -23,6 +23,15 @@ class _DashBoardState extends State<DashBoard> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
+  void initState() {
+    Provider.of<PortfolioAction>(context, listen: false).fetchStocks().then(
+        (_) =>
+            Provider.of<PortfolioAction>(context, listen: false).getLiveData());
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final portfolio = Provider.of<PortfolioAction>(context).activePorfolio;
@@ -60,8 +69,8 @@ class _DashBoardState extends State<DashBoard> {
                             flex: 1,
                             child: Row(
                               children: [
-                                // StatsMenu(
-                                //     context, portfolio, stocks, _scaffoldKey),
+                                StatsMenu(
+                                    context, portfolio, stocks, _scaffoldKey),
                                 OpenOrdersCard(context)
                               ],
                             ),
@@ -79,12 +88,12 @@ class _DashBoardState extends State<DashBoard> {
                         ],
                       ),
                     ),
-                    // Expanded(
-                    //   flex: 2,
-                    //   child: Column(
-                    //     children: [openPositionsCard(context, stocks)],
-                    //   ),
-                    // )
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [openPositionsCard(context, stocks)],
+                      ),
+                    )
                   ],
                 ),
         ),

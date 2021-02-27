@@ -4,7 +4,6 @@ import 'package:stonks/core/responsive.dart';
 
 Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
   final size = MediaQuery.of(context).size;
-
   return Expanded(
     flex: 1,
     child: Container(
