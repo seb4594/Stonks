@@ -36,32 +36,39 @@ class PortfolioAction with ChangeNotifier {
     stocks: <Stock>[],
   );
 
-  double fetchPerformance(double livePrice) {
-    double totalEquity = 0.0;
-    _stocks.forEach((stock) {
-      totalEquity += stock.price * stock.amount;
-    });
-
-    double performance = (totalEquity - livePrice) / totalEquity * 100;
-    print('total Equity: $totalEquity');
-    print('total live Price: $livePrice');
-    print('total Performance: $performance');
-
-    return performance;
+  Future<void> newPortfolio() async {
+    final idToken = await user.currentUser.getIdToken();
+    final portfolioUrl =
+        'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/portfolio.json?auth=$idToken';
+    try {
+      final response = await http.post(
+        portfolioUrl,
+        body: json.encode(
+          {'cash': 1000, 'equity': 0.0, 'performance': 0.0},
+        ),
+      );
+    } catch (e) {}
   }
 
-  Future<void> fetchStocks() async {
+  Future<void> fetchPortfolio() async {
     final idToken = await user.currentUser.getIdToken();
 
-    final url =
+    final stocksUrl =
         'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks.json?auth=$idToken';
+    final portfolioUrl =
+        'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/portfolio.json?auth=$idToken';
 
     try {
-      final response = await http.get(url);
+      final porfolioResponse = await http.get(portfolioUrl);
+      final response = await http.get(stocksUrl);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final exportData =
+          json.decode(porfolioResponse.body) as Map<String, dynamic>;
+
       if (extractedData == null) {
         return;
       }
+      final portData = json.decode(porfolioResponse.body)['name'];
 
       List<Stock> _stocksList = [];
       // print(extractedData);
@@ -88,6 +95,13 @@ class PortfolioAction with ChangeNotifier {
       );
 
       _stocks = _stocksList;
+
+      activePorfolio = Portfolio(
+        cash: portData['cash'],
+        equity: portData['equity'],
+        preformance: portData['equity'],
+        stocks: _stocks,
+      );
 
       notifyListeners();
     } catch (e) {}
@@ -120,6 +134,9 @@ class PortfolioAction with ChangeNotifier {
           },
         ),
       );
+
+      final portfolioUrl =
+          'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks.json?auth=$idToken';
       // print(response.body);
 
       activePorfolio = Portfolio(

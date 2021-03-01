@@ -51,7 +51,7 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
               ],
             ),
             SizedBox(
-              height: 50,
+              height: Responsive.isMobile(context) ? 10 : 100,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -60,35 +60,67 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
                 //   width: 100,
                 // ),
                 Text(
-                  portfolio.cash.toStringAsFixed(2),
+                  portfolio.cash.toStringAsFixed(2) ?? '0.0',
                   style: TextStyle(fontSize: 40),
                 ),
               ],
             ),
             Padding(
-              padding: EdgeInsets.only(right: 100, left: 100),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.insert_chart_outlined_sharp),
-                        Text(portfolio.equity.toStringAsFixed(2),
-                            style: TextStyle(fontSize: 20))
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        // Icon(Icons.perc),
-                        Text(portfolio.preformance.toStringAsFixed(2),
-                            style: TextStyle(fontSize: 20)),
-                        Text('  % ',
-                            style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ]),
-            )
+                padding: EdgeInsets.only(right: 100, left: 100),
+                child: Responsive.isDesktop(context)
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                            Row(
+                              children: [
+                                Icon(Icons.insert_chart_outlined_sharp),
+                                Text(
+                                    portfolio.equity.toStringAsFixed(2) ??
+                                        '0.0',
+                                    style: TextStyle(fontSize: 20))
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                // Icon(Icons.perc),
+                                Text(
+                                    portfolio.preformance.toStringAsFixed(2) ??
+                                        '0.0',
+                                    style: TextStyle(fontSize: 20)),
+                                Text('  % ',
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ])
+                    : Column(
+                        // crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(portfolio.equity.toStringAsFixed(2) ?? '0.0',
+                                  style: TextStyle(fontSize: 20)),
+                              Icon(Icons.insert_chart_outlined_sharp),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(Icons.perc),
+                              Text(
+                                  portfolio.preformance.toStringAsFixed(2) ??
+                                      '0.0',
+                                  style: TextStyle(fontSize: 20)),
+                              Text(' % ',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ],
+                      ))
           ],
         ),
       ),

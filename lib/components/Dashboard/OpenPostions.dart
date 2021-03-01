@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:stonks/Providers/Stock.dart';
+import 'package:stonks/Providers/screenManager.dart';
 import 'package:stonks/core/responsive.dart';
 
 Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
   final size = MediaQuery.of(context).size;
   return Expanded(
-    flex: 1,
+    flex: 3,
     child: Container(
       margin: EdgeInsets.all(5),
       decoration: BoxDecoration(boxShadow: [
@@ -39,21 +41,36 @@ Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
             ),
 
             Container(
-              height: 400,
+              height: 230,
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   List<Widget> stonksCard = [];
                   currentStocks.forEach((element) {
                     stonksCard.add(Container(
                       width: double.infinity,
-                      height: 20,
+                      height: 35,
                       child: Column(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                  '${element.ticker}  -- ${element.amount} -- ${element.price}  -- ${element.livePrice}'),
-                            ],
+                          InkWell(
+                            onTap: () => Provider.of<ScreenManager>(context,
+                                    listen: false)
+                                .changePage('/positionDetail', [element]),
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              width: size.width,
+                              height: 30,
+                              margin:
+                                  EdgeInsets.only(right: 5, left: 5, top: 5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Colors.blueGrey[100]),
+                              child: Row(
+                                children: [
+                                  Text(
+                                      ' ${element.amount} ${element.ticker} @ ${element.livePrice.toStringAsFixed(2)}'),
+                                ],
+                              ),
+                            ),
                           )
                         ],
                       ),

@@ -24,9 +24,10 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-    Provider.of<PortfolioAction>(context, listen: false).fetchStocks().then(
+    Provider.of<PortfolioAction>(context, listen: false).fetchPortfolio().then(
         (_) =>
             Provider.of<PortfolioAction>(context, listen: false).getLiveData());
+    // Provider.of<PortfolioAction>(context, listen: false).newPortfolio();
 
     super.initState();
   }

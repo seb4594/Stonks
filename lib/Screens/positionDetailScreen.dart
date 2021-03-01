@@ -13,7 +13,7 @@ import 'package:stonks/core/widgets/side_menu.dart';
 class PositionDetailScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Widget positionSpecs(BuildContext context, Stock stock, Map data) {
+  Widget positionSpecs(BuildContext context, Stock stock) {
     final size = MediaQuery.of(context).size;
     return Expanded(
         child: Container(
@@ -65,7 +65,7 @@ class PositionDetailScreen extends StatelessWidget {
             children: [
               Text('Current Equity', style: TextStyle(fontSize: 25)),
               Text(
-                  'Amount ${stock.amount} x ${data['c']} = ${(stock.amount * data['c']).roundToDouble()}',
+                  'Amount ${stock.amount} x ${stock.livePrice} = ${(stock.amount * stock.livePrice).roundToDouble()}',
                   style: TextStyle(fontSize: 25))
             ],
           ),
@@ -116,7 +116,7 @@ class PositionDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final stock = Provider.of<ScreenManager>(context).currentArgs[0];
-    final stockData = Provider.of<ScreenManager>(context).currentArgs[1];
+
     // print(stockData);
     // Stock stock = ModalRoute.of(context).settings.arguments;
     final _size = MediaQuery.of(context).size;
@@ -202,7 +202,7 @@ class PositionDetailScreen extends StatelessWidget {
             child: Responsive.isMobile(context)
                 ? ListView(
                     children: [
-                      positionSpecs(context, stock, stockData),
+                      positionSpecs(context, stock),
                       // positionManager(context)
                     ],
                   )
@@ -212,7 +212,7 @@ class PositionDetailScreen extends StatelessWidget {
                         flex: 1,
                         child: Row(
                           children: [
-                            positionSpecs(context, stock, stockData),
+                            positionSpecs(context, stock),
                             // positionManager(context)
                           ],
                         ),
@@ -221,7 +221,7 @@ class PositionDetailScreen extends StatelessWidget {
                         flex: 1,
                         child: Row(
                           children: [
-                            positionSpecs(context, stock, stockData),
+                            positionSpecs(context, stock),
                           ],
                         ),
                       )

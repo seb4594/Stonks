@@ -4,7 +4,7 @@ import 'package:stonks/core/responsive.dart';
 Widget OpenOrdersCard(BuildContext context) {
   final size = MediaQuery.of(context).size;
   return Expanded(
-    flex: 1,
+    flex: 2,
     child: Container(
       margin: EdgeInsets.all(5),
       decoration: BoxDecoration(boxShadow: [
