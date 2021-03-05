@@ -4,9 +4,11 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import 'package:stonks/Providers/PortfolioAction.dart';
+import 'package:stonks/Providers/senator.dart';
 
 import 'package:stonks/components/Dashboard/OpenPostions.dart';
 import 'package:stonks/components/Dashboard/openOrders.dart';
+import 'package:stonks/components/Dashboard/senatorHolds.dart';
 import 'package:stonks/components/Dashboard/statsMenu.dart';
 import 'package:stonks/core/constants.dart';
 import 'package:stonks/core/responsive.dart';
@@ -25,8 +27,12 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     Provider.of<PortfolioAction>(context, listen: false).fetchPortfolio().then(
-        (_) =>
-            Provider.of<PortfolioAction>(context, listen: false).getLiveData());
+        (_) => Provider.of<PortfolioAction>(context, listen: false)
+            .getLiveData()
+            .then((value) =>
+                Provider.of<PortfolioAction>(context, listen: false)
+                    .fetchSenatorData()));
+
     // Provider.of<PortfolioAction>(context, listen: false).newPortfolio();
 
     super.initState();
@@ -55,7 +61,8 @@ class _DashBoardState extends State<DashBoard> {
                     height: size.height,
                     child: Column(children: [
                       StatsMenu(context, portfolio, stocks, _scaffoldKey),
-                      OpenOrdersCard(context),
+                      // OpenOrdersCard(context),
+                      SenatorHolds(),
                       openPositionsCard(context, stocks),
                     ]),
                   ),
@@ -81,8 +88,8 @@ class _DashBoardState extends State<DashBoard> {
                             child: Row(
                               children: [
                                 OpenOrdersCard(context),
-                                OpenOrdersCard(context),
-                                OpenOrdersCard(context),
+                                SenatorHolds(),
+                                // OpenOrdersCard(context),
                               ],
                             ),
                           )

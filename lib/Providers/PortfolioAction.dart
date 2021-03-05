@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
+import './senator.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,11 @@ class PortfolioAction with ChangeNotifier {
   ];
   List<Stock> get currentStocks {
     return [..._stocks];
+  }
+
+  List<Senator> _senatorStocks = [];
+  List<Senator> get currentSenatorStock {
+    return [..._senatorStocks];
   }
 
   Portfolio activePorfolio = Portfolio(
@@ -306,5 +313,31 @@ class PortfolioAction with ChangeNotifier {
       throw e;
     }
   }
+  ///////////////////
+
+  Future<void> fetchSenatorData() async {
+    try {
+      final response =
+          await http.get('https://l6bjhw.deta.dev/Thomas%20R%20Carper');
+      print(response.statusCode);
+      final extract = json.decode(response.body) as Map<String, dynamic>;
+      extract.forEach((key, value) {
+        _senatorStocks.add(Senator(
+            name: value['person'],
+            symbol: value['symbol'],
+            comment: value['comment'],
+            company: value['company'],
+            // highPrice: double.parse(value['highPrice']),
+            label: value['label'],
+            // lowPrice: double.parse(value['lowPrice']),
+            ownership: value['ownership'],
+            transactionDate: DateTime.parse(value['transactionDate'])));
+        notifyListeners();
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   ///////////////////
 }
