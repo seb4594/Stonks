@@ -34,6 +34,7 @@ class _SenatorHoldsState extends State<SenatorHolds> {
         child: Column(
           children: [
             Container(
+              padding: EdgeInsets.only(top: 20, left: 20),
               width: size.width,
               // height: ,
               child: Text(
@@ -45,38 +46,36 @@ class _SenatorHoldsState extends State<SenatorHolds> {
               ),
             ),
             Container(
-              height: 151,
+              padding: EdgeInsets.only(left: 10, right: 10),
+              height: 400,
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   List<Widget> senatorCard = [];
                   senatorStocks.forEach((transaction) {
-                    senatorCard.add(Container(
-                      width: double.infinity,
-                      height: 35,
-                      child: Column(
-                        children: [
-                          InkWell(
-                            // onTap: () => Provider.of<ScreenManager>(context,
-                            //         listen: false)
-                            //     .changePage('/positionDetail', [element]),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              width: size.width,
-                              height: 30,
-                              margin:
-                                  EdgeInsets.only(right: 5, left: 5, top: 5),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.blueGrey[100]),
-                              child: Row(
-                                children: [
-                                  Text(
-                                      ' ${transaction.name} ${transaction.symbol} ${transaction.label} ${transaction.transactionDate.toString()}'),
-                                ],
+                    senatorCard.add(InkWell(
+                      // onTap: () => Provider.of<ScreenManager>(context,
+                      //         listen: false)
+                      //     .changePage('/positionDetail', [element]),
+                      child: Card(
+                        // padding: EdgeInsets.only(left: 10, right: 10),
+                        // width: size.width,
+                        // height: 30,
+                        margin: EdgeInsets.only(right: 5, left: 5, top: 5),
+                        // decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(5),
+                        //     color: Colors.blueGrey[100]),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                              // child: Image(
+                              //   image: NetworkImage(
+                              //       'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Tom_Carper%2C_official_portrait%2C_112th_Congress.jpg/220px-Tom_Carper%2C_official_portrait%2C_112th_Congress.jpg'),
+                              // ),
                               ),
-                            ),
-                          )
-                        ],
+                          title: Text(
+                              '${transaction.symbol}   -   \$${transaction.lowPrice} - \$${transaction.highPrice}'),
+                          subtitle: Text(
+                              ' ${transaction.name} ${transaction.label} ${transaction.transactionDate.toString().substring(0, 10)}'),
+                        ),
                       ),
                     ));
                   });

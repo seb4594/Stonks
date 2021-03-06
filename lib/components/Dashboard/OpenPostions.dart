@@ -41,38 +41,29 @@ Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
             ),
 
             Container(
-              height: 230,
+              height: 500,
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   List<Widget> stonksCard = [];
                   currentStocks.forEach((element) {
-                    stonksCard.add(Container(
-                      width: double.infinity,
-                      height: 35,
-                      child: Column(
-                        children: [
-                          InkWell(
-                            onTap: () => Provider.of<ScreenManager>(context,
-                                    listen: false)
-                                .changePage('/positionDetail', [element]),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              width: size.width,
-                              height: 30,
-                              margin:
-                                  EdgeInsets.only(right: 5, left: 5, top: 5),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.blueGrey[100]),
-                              child: Row(
-                                children: [
-                                  Text(
-                                      ' ${element.amount} ${element.ticker} @ ${element.livePrice.toStringAsFixed(2)}'),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
+                    stonksCard.add(InkWell(
+                      onTap: () =>
+                          Provider.of<ScreenManager>(context, listen: false)
+                              .changePage('/positionDetail', [element]),
+                      child: Container(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        width: size.width,
+                        height: 30,
+                        margin: EdgeInsets.only(right: 5, left: 5, top: 5),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.blueGrey[100]),
+                        child: Row(
+                          children: [
+                            Text(
+                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toStringAsFixed(2)}'),
+                          ],
+                        ),
                       ),
                     ));
                   });

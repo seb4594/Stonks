@@ -327,9 +327,9 @@ class PortfolioAction with ChangeNotifier {
             symbol: value['symbol'],
             comment: value['comment'],
             company: value['company'],
-            // highPrice: double.parse(value['highPrice']),
+            highPrice: value['highPrice'].toDouble(),
             label: value['label'],
-            // lowPrice: double.parse(value['lowPrice']),
+            lowPrice: value['lowPrice'].toDouble(),
             ownership: value['ownership'],
             transactionDate: DateTime.parse(value['transactionDate'])));
         notifyListeners();
