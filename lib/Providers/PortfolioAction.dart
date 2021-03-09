@@ -36,6 +36,11 @@ class PortfolioAction with ChangeNotifier {
     return [..._senatorStocks];
   }
 
+  List<Map> _redditMentions = [];
+  List<Map> get currentRedditMentions {
+    return [..._redditMentions];
+  }
+
   Portfolio activePorfolio = Portfolio(
     cash: 1000.00,
     equity: 0.0,
@@ -319,7 +324,7 @@ class PortfolioAction with ChangeNotifier {
     try {
       final response =
           await http.get('https://l6bjhw.deta.dev/Thomas%20R%20Carper');
-      print(response.statusCode);
+      // print(response.statusCode);
       final extract = json.decode(response.body) as Map<String, dynamic>;
       extract.forEach((key, value) {
         _senatorStocks.add(Senator(
@@ -334,6 +339,25 @@ class PortfolioAction with ChangeNotifier {
             transactionDate: DateTime.parse(value['transactionDate'])));
         notifyListeners();
       });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> fetchReddit() async {
+    final url = 'https://0c9or3.deta.dev/';
+    try {
+      final resp = await http.get(url);
+      final extract = json.decode(resp.body) as Map<String, dynamic>;
+      // print(extract);
+      // print(resp.statusCode);
+      // print(resp.body);
+
+      extract.forEach((key, value) {
+        _redditMentions
+          ..add({'symbol': value['symbol'], 'count': value['count']});
+      });
+      notifyListeners();
     } catch (e) {
       throw e;
     }

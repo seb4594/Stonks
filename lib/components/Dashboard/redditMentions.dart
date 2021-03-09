@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stonks/Providers/PortfolioAction.dart';
-import 'package:stonks/Providers/screenManager.dart';
-import 'package:stonks/Providers/senator.dart';
+
 import 'package:stonks/core/responsive.dart';
 
-class SenatorHolds extends StatefulWidget {
+class RedditMentions extends StatefulWidget {
   @override
-  _SenatorHoldsState createState() => _SenatorHoldsState();
+  _RedditMentionsState createState() => _RedditMentionsState();
 }
 
-class _SenatorHoldsState extends State<SenatorHolds> {
+class _RedditMentionsState extends State<RedditMentions> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    List<Senator> senatorStocks =
-        Provider.of<PortfolioAction>(context).currentSenatorStock;
+    List<Map> mentions =
+        Provider.of<PortfolioAction>(context).currentRedditMentions;
     return Expanded(
       flex: 2,
       child: Container(
@@ -38,7 +37,7 @@ class _SenatorHoldsState extends State<SenatorHolds> {
               width: size.width,
               // height: ,
               child: Text(
-                'Senator Movements',
+                'Reddit Mentions',
                 style: TextStyle(
                   fontSize: 20,
                   // fontFamily: 'Phosphate',
@@ -50,9 +49,10 @@ class _SenatorHoldsState extends State<SenatorHolds> {
               height: 400,
               child: ListView.builder(
                 itemBuilder: (context, index) {
-                  List<Widget> senatorCard = [];
-                  senatorStocks.forEach((transaction) {
-                    senatorCard.add(InkWell(
+                  List<Widget> mentionCard = [];
+                  mentions.forEach((mention) {
+                    print(mention);
+                    mentionCard.add(InkWell(
                       // onTap: () => Provider.of<ScreenManager>(context,
                       //         listen: false)
                       //     .changePage('/positionDetail', [element]),
@@ -72,15 +72,15 @@ class _SenatorHoldsState extends State<SenatorHolds> {
                               // ),
                               ),
                           title: Text(
-                              '${transaction.symbol}   -  ${transaction.label} -  \$${transaction.lowPrice} - \$${transaction.highPrice}'),
-                          subtitle: Text(
-                              ' ${transaction.name}  ${transaction.transactionDate.toString().substring(0, 10)}'),
+                              '${mention['symbol']}   -   Mentions - ${mention['count']}'),
+                          // subtitle: Text(
+                          //     ' ${transaction.name} ${transaction.label} ${transaction.transactionDate.toString().substring(0, 10)}'),
                         ),
                       ),
                     ));
                   });
 
-                  return Column(children: [...senatorCard]);
+                  return Column(children: [...mentionCard]);
                 },
                 itemCount: 1,
               ),
