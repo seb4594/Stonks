@@ -28,7 +28,9 @@ class AuthWrapper extends StatelessWidget {
         child: ElevatedButton(
           child: Text('Sign in'),
           onPressed: () {
-            context.read<AuthService>().signInAnonymously();
+            context
+                .read<AuthService>()
+                .signIn(email: 'seb4594@gmail.com', password: 'cowfat4594');
           },
         ),
       ),

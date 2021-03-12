@@ -114,8 +114,9 @@ class _OrderMenuState extends State<OrderMenu> {
                         return 'Please valid value.';
                       } else {
                         if (portfolio.cash <
-                            (double.parse(value) *
-                                widget.data[widget.searchKey][0]['c'])) {
+                                (double.parse(value) *
+                                    widget.data[widget.searchKey][0]['c']) &&
+                            widget.condition == Condition.Buy) {
                           return 'Cash Available: ${portfolio.cash.toString()}';
                         } else {
                           return null;

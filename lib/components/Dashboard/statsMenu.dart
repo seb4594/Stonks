@@ -119,6 +119,19 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
                                       fontWeight: FontWeight.bold)),
                             ],
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(Icons.perc),
+                              Text('Total', style: TextStyle(fontSize: 20)),
+                              Text(
+                                  (portfolio.cash + portfolio.equity)
+                                      .toString(),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
                         ],
                       ))
           ],

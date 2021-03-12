@@ -51,7 +51,7 @@ class _RedditMentionsState extends State<RedditMentions> {
                 itemBuilder: (context, index) {
                   List<Widget> mentionCard = [];
                   mentions.forEach((mention) {
-                    print(mention);
+                    // print(mention);
                     mentionCard.add(InkWell(
                       // onTap: () => Provider.of<ScreenManager>(context,
                       //         listen: false)

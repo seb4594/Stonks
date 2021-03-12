@@ -51,12 +51,12 @@ class PortfolioAction with ChangeNotifier {
   Future<void> newPortfolio() async {
     final idToken = await user.currentUser.getIdToken();
     final portfolioUrl =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/portfolio.json?auth=$idToken';
+        'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
     try {
-      final response = await http.post(
+      final response = await http.patch(
         portfolioUrl,
         body: json.encode(
-          {'cash': 1000, 'equity': 0.0, 'performance': 0.0},
+          {'cash': 1000, 'equity': 0.0, 'preformance': 0.0},
         ),
       );
     } catch (e) {}
@@ -65,55 +65,67 @@ class PortfolioAction with ChangeNotifier {
   Future<void> fetchPortfolio() async {
     final idToken = await user.currentUser.getIdToken();
 
-    final stocksUrl =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks.json?auth=$idToken';
+    // final stocksUrl =
+    //     'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks.json?auth=$idToken';
     final portfolioUrl =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/portfolio.json?auth=$idToken';
+        'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio.json?auth=$idToken';
 
     try {
       final porfolioResponse = await http.get(portfolioUrl);
-      final response = await http.get(stocksUrl);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      // final response = await http.get(stocksUrl);
+      // final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final exportData =
           json.decode(porfolioResponse.body) as Map<String, dynamic>;
 
-      if (extractedData == null) {
-        return;
-      }
-      final portData = json.decode(porfolioResponse.body)['name'];
+      // if (extractedData == null) {
+      //   return;
+      // }
+      // final portData = json.decode(porfolioResponse.body)['name'];
+      // print(exportData);
 
       List<Stock> _stocksList = [];
       // print(extractedData);
 
-      extractedData.forEach(
-        (id, stockData) {
-          double stockAmount = double.parse(
-            extractedData[id]['stockAmount'],
-          );
+      exportData.forEach(
+        (key, value) {
+          if (key != "stocks") {
+            print(key);
+            print(value['preformance']);
+            activePorfolio = Portfolio(
+              id: key,
+              cash: value['cash'],
+              equity: value['equity'],
+              preformance: value['preformance'],
+              stocks: _stocks,
+            );
+          } else if (key == 'stocks') {
+            // print(key);
+            // print(value);
+            value.forEach(
+              (id, stockData) {
+                double stockAmount = double.parse(
+                  value[id]['stockAmount'],
+                );
 
-          final fetchedStock = Stock(
-            // livePrice: livePrice,
-            id: id,
-            ticker: stockData['stock'],
-            company: stockData['company'],
-            condition: Condition.Buy, //CREATE GENERATOR
-            amount: stockAmount,
-            time: DateTime.parse(stockData['time']),
-            price: double.parse(stockData['price']),
-          );
+                final fetchedStock = Stock(
+                  // livePrice: livePrice,
+                  id: id,
+                  ticker: stockData['stock'],
+                  company: stockData['company'],
+                  condition: Condition.Buy, //CREATE GENERATOR
+                  amount: stockAmount,
+                  time: DateTime.parse(stockData['time']),
+                  price: double.parse(stockData['price']),
+                );
 
-          _stocksList.add(fetchedStock);
+                _stocksList.add(fetchedStock);
+              },
+            );
+          }
         },
       );
 
       _stocks = _stocksList;
-
-      activePorfolio = Portfolio(
-        cash: portData['cash'],
-        equity: portData['equity'],
-        preformance: portData['equity'],
-        stocks: _stocks,
-      );
 
       notifyListeners();
     } catch (e) {}
@@ -124,7 +136,7 @@ class PortfolioAction with ChangeNotifier {
     final idToken = await user.currentUser.getIdToken();
 
     final url =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks.json?auth=$idToken';
+        'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks.json?auth=$idToken';
 
     final date = DateTime.now();
 
@@ -146,16 +158,37 @@ class PortfolioAction with ChangeNotifier {
           },
         ),
       );
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+      final portId = activePorfolio.id;
+      print("portid - $portId");
       final portfolioUrl =
-          'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks.json?auth=$idToken';
+          'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
       // print(response.body);
 
+      final portResponse = await http.patch(
+        portfolioUrl,
+        body: json.encode(
+          {
+            'cash': activePorfolio.cash - amount * price,
+            'equity': activePorfolio.equity + amount * price,
+            // 'preformance': activePorfolio.preformance,
+            // 'preformance': 100,
+          },
+        ),
+      );
+      // final portData = json.decode(portResponse.body)['name'];
+      // print(portData);
+      final portfolioId = json.decode(portResponse.body)['name'];
+      print(portfolioId);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
       activePorfolio = Portfolio(
-          cash: activePorfolio.cash - amount * price,
-          equity: activePorfolio.equity + amount * price,
-          preformance: activePorfolio.preformance,
-          stocks: activePorfolio.stocks);
+        id: portfolioId,
+        cash: activePorfolio.cash - amount * price,
+        equity: activePorfolio.equity + amount * price,
+        preformance: activePorfolio.preformance,
+        stocks: activePorfolio.stocks,
+      );
+
       _stocks.insert(
         0,
         Stock(
@@ -193,7 +226,7 @@ class PortfolioAction with ChangeNotifier {
       //remove from current holding move to history
       final idToken = await user.currentUser.getIdToken();
       final url =
-          'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks/$id.json?auth=$idToken';
+          'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks/$id.json?auth=$idToken';
 
       var cacheStock = _stocks[stockIndex];
       _stocks.removeAt(stockIndex);
@@ -252,9 +285,9 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> getLiveData() async {
-    print('Starting Getlive Data');
-    print(currentStocks.length);
-    print(_stocks.length);
+    // print('Starting Getlive Data');
+    // print(currentStocks.length);
+    // print(_stocks.length);
     double startEq = 0.0;
     double lastEq = 0.0;
 
@@ -272,14 +305,14 @@ class PortfolioAction with ChangeNotifier {
     // print(startEq);
     String stockString = 'Start';
     stockString = stockTickers.join(',');
-    print(stockString);
+    // print(stockString);
 
     try {
       final url =
           'https://data.alpaca.markets/v1/bars/1D?symbols=$stockString&limit=1';
       final response = await http.get(url, headers: headers);
       final extractedData = jsonDecode(response.body) as Map;
-      print(extractedData);
+      // print(extractedData);
 
       openPositions.forEach(
         (stock) {

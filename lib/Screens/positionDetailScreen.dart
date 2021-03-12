@@ -115,7 +115,7 @@ class PositionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final stock = Provider.of<ScreenManager>(context).currentArgs[0];
+    Stock stock = Provider.of<ScreenManager>(context).currentArgs[0];
 
     // print(stockData);
     // Stock stock = ModalRoute.of(context).settings.arguments;
@@ -187,7 +187,8 @@ class PositionDetailScreen extends StatelessWidget {
           ),
           key: _scaffoldKey,
           appBar: AppBar(
-            title: Text(stock.ticker),
+            title: Text(
+                "${stock.ticker} - ${stock.time.toString().substring(0, 10)}"),
           ),
           drawer: !Responsive.isDesktop(context)
               ? ConstrainedBox(
