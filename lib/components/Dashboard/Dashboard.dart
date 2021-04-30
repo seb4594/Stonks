@@ -27,7 +27,7 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-    Provider.of<PortfolioAction>(context, listen: false).fetchPortfolio().then(
+    Provider.of<PortfolioAction>(context, listen: false).fetchAccount().then(
           (_) => Provider.of<PortfolioAction>(context, listen: false)
               .getLiveData()
               .then(
@@ -36,7 +36,10 @@ class _DashBoardState extends State<DashBoard> {
                     .then(
                       (_) =>
                           Provider.of<PortfolioAction>(context, listen: false)
-                              .fetchReddit(),
+                              .fetchReddit()
+                              .then((_) => Provider.of<PortfolioAction>(context,
+                                      listen: false)
+                                  .fetchOrders()),
                     ),
               ),
         );

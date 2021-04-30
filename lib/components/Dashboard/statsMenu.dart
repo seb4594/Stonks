@@ -11,6 +11,7 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
   final height = Responsive.isMobile(context)
       ? MediaQuery.of(context).size.height * 0.3
       : MediaQuery.of(context).size.height;
+
   return Expanded(
     flex: 2,
     child: Container(
@@ -66,74 +67,72 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
               ],
             ),
             Padding(
-                padding: EdgeInsets.only(right: 100, left: 100),
-                child: Responsive.isDesktop(context)
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            Row(
-                              children: [
-                                Icon(Icons.insert_chart_outlined_sharp),
-                                Text(
-                                    portfolio.equity.toStringAsFixed(2) ??
-                                        '0.0',
-                                    style: TextStyle(fontSize: 20))
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                // Icon(Icons.perc),
-                                Text(
-                                    portfolio.preformance.toStringAsFixed(2) ??
-                                        '0.0',
-                                    style: TextStyle(fontSize: 20)),
-                                Text('  % ',
-                                    style: TextStyle(
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ])
-                    : Column(
-                        // crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
+              padding: EdgeInsets.only(right: 100, left: 100),
+              child: Responsive.isDesktop(context)
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(portfolio.equity.toStringAsFixed(2) ?? '0.0',
-                                  style: TextStyle(fontSize: 20)),
                               Icon(Icons.insert_chart_outlined_sharp),
+                              Text(portfolio.equity.toStringAsFixed(2) ?? '0.0',
+                                  style: TextStyle(fontSize: 20))
                             ],
                           ),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Icon(Icons.perc),
                               Text(
                                   portfolio.preformance.toStringAsFixed(2) ??
                                       '0.0',
                                   style: TextStyle(fontSize: 20)),
-                              Text(' % ',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Icon(Icons.perc),
-                              Text('Total', style: TextStyle(fontSize: 20)),
                               Text(
-                                  (portfolio.cash + portfolio.equity)
-                                      .toString(),
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)),
+                                '  % ',
+                                style: TextStyle(
+                                    fontSize: 30, fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
-                        ],
-                      ))
+                        ])
+                  : Column(
+                      // crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(portfolio.equity.toStringAsFixed(2) ?? '0.0',
+                                style: TextStyle(fontSize: 20)),
+                            Icon(Icons.insert_chart_outlined_sharp),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Icon(Icons.perc),
+                            Text(
+                                portfolio.preformance.toStringAsFixed(2) ??
+                                    '0.0',
+                                style: TextStyle(fontSize: 20)),
+                            Text(' % ',
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Icon(Icons.perc),
+                            Text('Total', style: TextStyle(fontSize: 20)),
+                            Text(
+                                (portfolio.cash + portfolio.equity)
+                                    .toStringAsFixed(2),
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
+                    ),
+            )
           ],
         ),
       ),

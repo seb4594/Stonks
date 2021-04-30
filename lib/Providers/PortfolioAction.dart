@@ -31,6 +31,8 @@ class PortfolioAction with ChangeNotifier {
     return [..._stocks];
   }
 
+  List openOrders = [];
+
   List<Senator> _senatorStocks = [];
   List<Senator> get currentSenatorStock {
     return [..._senatorStocks];
@@ -165,12 +167,15 @@ class PortfolioAction with ChangeNotifier {
           'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
       // print(response.body);
 
+      final cashspent = activePorfolio.cash - amount * price;
+      final equitAq = activePorfolio.equity + amount * price;
+
       final portResponse = await http.patch(
         portfolioUrl,
         body: json.encode(
           {
-            'cash': activePorfolio.cash - amount * price,
-            'equity': activePorfolio.equity + amount * price,
+            'cash': cashspent,
+            'equity': equitAq,
             // 'preformance': activePorfolio.preformance,
             // 'preformance': 100,
           },
@@ -183,8 +188,8 @@ class PortfolioAction with ChangeNotifier {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
       activePorfolio = Portfolio(
         id: portfolioId,
-        cash: activePorfolio.cash - amount * price,
-        equity: activePorfolio.equity + amount * price,
+        cash: cashspent,
+        equity: equitAq,
         preformance: activePorfolio.preformance,
         stocks: activePorfolio.stocks,
       );
@@ -217,8 +222,8 @@ class PortfolioAction with ChangeNotifier {
 
     final stockIndex = _stocks.indexWhere((stock) => stock.id == id);
     activePorfolio = Portfolio(
-        cash: activePorfolio.cash + amount * stock.price,
-        equity: activePorfolio.equity - amount * stock.price,
+        cash: activePorfolio.cash + amount * stock.livePrice,
+        equity: activePorfolio.equity - amount * stock.livePrice,
         preformance: activePorfolio.preformance,
         stocks: activePorfolio.stocks);
 
@@ -227,12 +232,25 @@ class PortfolioAction with ChangeNotifier {
       final idToken = await user.currentUser.getIdToken();
       final url =
           'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks/$id.json?auth=$idToken';
+      final portfolioUrl =
+          'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
 
       var cacheStock = _stocks[stockIndex];
       _stocks.removeAt(stockIndex);
-      notifyListeners();
       try {
         final response = await http.delete(url);
+        final portRespose = await http.patch(
+          portfolioUrl,
+          body: json.encode(
+            {
+              'cash': activePorfolio.cash + (stock.amount * stock.livePrice),
+              'equity':
+                  activePorfolio.equity - (stock.amount * stock.livePrice),
+            },
+          ),
+        );
+
+        notifyListeners();
         cacheStock = null;
       } catch (e) {
         _stocks.insert(stockIndex, cacheStock);
@@ -393,6 +411,75 @@ class PortfolioAction with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       throw e;
+    }
+  }
+
+  Future<void> fetchAccount() async {
+    const url = "https://paper-api.alpaca.markets/v2/account";
+    const posUrl = "https://paper-api.alpaca.markets/v2/positions";
+    const apiKey = "PKW2IW2FYUSY2W4Q6AAO";
+    const sKey = "0JzCIAVFRp4OsNGbLh5GwPM9VOdP7nka6cahSur8";
+
+    try {
+      final response = await http.get(url,
+          headers: {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey});
+
+      final stockResponse = await http.get(posUrl,
+          headers: {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey});
+      final extract = json.decode(response.body) as Map<String, dynamic>;
+      final stockExtract = json.decode(stockResponse.body) as List;
+      List<Stock> positions = [];
+
+      stockExtract.forEach(
+        (element) {
+          Stock newStock = Stock(
+              id: element['asset_id'],
+              ticker: element['symbol'],
+              company: element['symbol'],
+              condition: Condition.Buy,
+              amount: double.parse(element['qty']),
+              time: DateTime.now(),
+              price: double.parse(element['avg_entry_price']));
+          positions.add(newStock);
+        },
+      );
+
+      final preformance = (double.parse(extract['last_equity']) -
+          double.parse(extract['equity']));
+      _stocks = positions;
+
+      activePorfolio = Portfolio(
+          cash: double.parse(extract['cash']),
+          equity: double.parse(extract['equity']),
+          id: extract['id'],
+          preformance: preformance,
+          stocks: _stocks);
+
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> fetchOrders() async {
+    const url = "https://paper-api.alpaca.markets/v2/orders";
+    const posUrl = "https://paper-api.alpaca.markets/v2/positions";
+    const apiKey = "PKW2IW2FYUSY2W4Q6AAO";
+    const sKey = "0JzCIAVFRp4OsNGbLh5GwPM9VOdP7nka6cahSur8";
+    const headers = {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey};
+
+    try {
+      final response = await http.get(url, headers: headers);
+      final extract = json.decode(response.body) as List;
+      print(extract);
+
+      extract.forEach((order) {
+        openOrders.add(order);
+      });
+
+      notifyListeners();
+    } catch (e) {
+      print(e);
     }
   }
 

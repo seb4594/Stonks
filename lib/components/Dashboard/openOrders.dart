@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:stonks/Providers/PortfolioAction.dart';
+import 'package:provider/provider.dart';
 import 'package:stonks/core/responsive.dart';
 
 Widget OpenOrdersCard(BuildContext context) {
   final size = MediaQuery.of(context).size;
+
+  final openOrders =
+      Provider.of<PortfolioAction>(context, listen: false).openOrders;
   return Expanded(
     flex: 2,
     child: Container(
@@ -30,6 +35,20 @@ Widget OpenOrdersCard(BuildContext context) {
               // fontFamily: 'Phosphate',
             ),
           ),
+          // Container(
+          //   child: ListView.builder(
+          //     itemBuilder: (context, index) {
+          //       return Container(
+          //         width: 100,
+          //         height: 50,
+          //         child: Row(
+          //           children: [openOrders[index]['symbol']],
+          //         ),
+          //       );
+          //     },
+          //     itemCount: openOrders.length,
+          //   ),
+          // )
         ],
       ),
     ),
