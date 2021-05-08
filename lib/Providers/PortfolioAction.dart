@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:stonks/Providers/BarData.dart';
+
 import './senator.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,16 +19,7 @@ class PortfolioAction with ChangeNotifier {
   final userId;
   final user = FirebaseAuth.instance;
 
-  List<Stock> _stocks = [
-    // Stock(
-    //     id: '1',
-    //     time: DateTime.now(),
-    //     amount: 15,
-    //     company: "Apple",
-    //     condition: Condition.Buy,
-    //     price: 212.12,
-    //     ticker: 'AAPL')
-  ];
+  List<Stock> _stocks = [];
   List<Stock> get currentStocks {
     return [..._stocks];
   }
@@ -299,7 +292,20 @@ class PortfolioAction with ChangeNotifier {
     final response = await http.get(url, headers: headers);
     final extractedData = jsonDecode(response.body);
 
-    return extractedData;
+    final date = DateTime.now().subtract(Duration(days: 7)).toIso8601String();
+    final barUrl =
+        'https://data.alpaca.markets/v1/bars/15Min?symbols=$ticker&limit=300&after=$date';
+
+    final resp = await http.get(barUrl, headers: headers);
+    final extract = json.decode(resp.body) as Map;
+    final timeFrames = extract['$ticker'] as List;
+    // print('TIME FRAME');
+    // print(timeFrames[0]);
+
+    return {
+      'CurrentData': extractedData,
+      'Bars': BarData(timeWindows: timeFrames)
+    };
   }
 
   Future<void> getLiveData() async {
@@ -351,7 +357,7 @@ class PortfolioAction with ChangeNotifier {
               price: stock.price,
               ticker: stock.ticker,
               time: stock.time,
-              livePrice: extractedData[stock.ticker][0]['c']);
+              livePrice: extractedData[stock.ticker][0]['c'] + 0.00);
         },
       );
 
@@ -400,7 +406,8 @@ class PortfolioAction with ChangeNotifier {
     try {
       final resp = await http.get(url);
       final extract = json.decode(resp.body) as Map<String, dynamic>;
-      // print(extract);
+
+      print(extract);
       // print(resp.statusCode);
       // print(resp.body);
 
@@ -408,6 +415,7 @@ class PortfolioAction with ChangeNotifier {
         _redditMentions
           ..add({'symbol': value['symbol'], 'count': value['count']});
       });
+
       notifyListeners();
     } catch (e) {
       throw e;
@@ -484,4 +492,7 @@ class PortfolioAction with ChangeNotifier {
   }
 
   ///////////////////
+  ///
+  ///
+
 }

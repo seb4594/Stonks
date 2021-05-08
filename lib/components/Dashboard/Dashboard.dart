@@ -37,9 +37,11 @@ class _DashBoardState extends State<DashBoard> {
                       (_) =>
                           Provider.of<PortfolioAction>(context, listen: false)
                               .fetchReddit()
-                              .then((_) => Provider.of<PortfolioAction>(context,
-                                      listen: false)
-                                  .fetchOrders()),
+                              .then(
+                                (_) => Provider.of<PortfolioAction>(context,
+                                        listen: false)
+                                    .fetchOrders(),
+                              ),
                     ),
               ),
         );

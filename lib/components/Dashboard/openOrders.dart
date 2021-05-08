@@ -35,20 +35,39 @@ Widget OpenOrdersCard(BuildContext context) {
               // fontFamily: 'Phosphate',
             ),
           ),
-          // Container(
-          //   child: ListView.builder(
-          //     itemBuilder: (context, index) {
-          //       return Container(
-          //         width: 100,
-          //         height: 50,
-          //         child: Row(
-          //           children: [openOrders[index]['symbol']],
-          //         ),
-          //       );
-          //     },
-          //     itemCount: openOrders.length,
-          //   ),
-          // )
+          Center(
+            child: Container(
+              height: 450,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  List<Widget> stonksCard = [];
+                  openOrders.forEach((element) {
+                    stonksCard.add(InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        width: size.width,
+                        height: 30,
+                        margin: EdgeInsets.only(right: 5, left: 5, top: 5),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.blueGrey[100]),
+                        child: Row(
+                          children: [
+                            Text(
+                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toString()}'),
+                          ],
+                        ),
+                      ),
+                    ));
+                  });
+                  // print(currentStocks.length.toString());
+                  return Column(children: [...stonksCard]);
+                },
+                itemCount: 1,
+              ),
+            ),
+          )
         ],
       ),
     ),

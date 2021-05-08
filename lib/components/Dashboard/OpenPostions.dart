@@ -39,7 +39,6 @@ Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
                 ),
               ),
             ),
-
             Container(
               height: 500,
               child: ListView.builder(
@@ -61,7 +60,7 @@ Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
                         child: Row(
                           children: [
                             Text(
-                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toStringAsFixed(2)}'),
+                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toString()}'),
                           ],
                         ),
                       ),
@@ -73,68 +72,6 @@ Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
                 itemCount: 1,
               ),
             ),
-
-            // FutureBuilder(
-            //   builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-            //     final data = snapshot.data;
-            //     List<Widget> cards = [];
-            //     if (data != null && data.length > 0) {
-            //       data[0].forEach(
-            //         (stock) {
-            //           cards.add(
-            //             Card(
-            //               child: ListTile(
-            //                 trailing: ElevatedButton(
-            //                   onPressed: () => Provider.of<ScreenManager>(
-            //                           context,
-            //                           listen: false)
-            //                       .changePage('/positionDetail',
-            //                           [stock, data[1][stock.ticker][0]]),
-            //                   child: Text("Manage"),
-            //                 ),
-            //                 title: Text(stock.ticker),
-            //                 subtitle: Text(
-            //                     "${stock.amount} x ${data[1][stock.ticker][0]['c']} = ${(stock.amount * data[1][stock.ticker][0]['c']).roundToDouble()}"),
-            //                 // '${response['industry']}')
-            //                 // ''),
-            //               ),
-            //             ),
-            //           );
-            //         },
-            //       );
-            //     }
-
-            //     if (data != null && data.length > 0) {
-            //       if (size.height > 200) {
-            //         return Container(
-            //           height: Responsive.isMobile(context)
-            //               ? size.height * .5
-            //               : size.height > 920
-            //                   ? size.height * .9
-            //                   : size.height * .8,
-            //           child: ListView(
-            //             children: [...cards],
-            //           ),
-            //         );
-            //       } else {
-            //         return Container(
-            //           child: Row(
-            //             children: [
-            //               Text('More'),
-            //               IconButton(
-            //                   icon: Icon(Icons.expand_more_sharp),
-            //                   onPressed: () {})
-            //             ],
-            //           ),
-            //         );
-            //       }
-            //     } else
-            //       return Center(
-            //         child: CircularProgressIndicator(),
-            //       );
-            //   },
-
-            // )
           ],
         ),
       ),
