@@ -8,6 +8,7 @@ import 'package:stonks/Providers/senator.dart';
 
 import 'package:stonks/components/Dashboard/OpenPostions.dart';
 import 'package:stonks/components/Dashboard/openOrders.dart';
+import 'package:stonks/components/Dashboard/preformanceGraph.dart';
 import 'package:stonks/components/Dashboard/redditMentions.dart';
 import 'package:stonks/components/Dashboard/senatorHolds.dart';
 import 'package:stonks/components/Dashboard/statsMenu.dart';
@@ -56,6 +57,8 @@ class _DashBoardState extends State<DashBoard> {
     final size = MediaQuery.of(context).size;
     final portfolio = Provider.of<PortfolioAction>(context).activePorfolio;
     final stocks = Provider.of<PortfolioAction>(context).currentStocks;
+    final performanceData =
+        Provider.of<PortfolioAction>(context).preformanceData;
     return Scaffold(
       key: _scaffoldKey,
       drawer: ConstrainedBox(
@@ -74,6 +77,7 @@ class _DashBoardState extends State<DashBoard> {
                     height: size.height,
                     child: Column(children: [
                       StatsMenu(context, portfolio, stocks, _scaffoldKey),
+
                       // OpenOrdersCard(context),
                       SenatorHolds(),
                       openPositionsCard(context, stocks),
@@ -90,8 +94,10 @@ class _DashBoardState extends State<DashBoard> {
                             flex: 1,
                             child: Row(
                               children: [
-                                StatsMenu(
-                                    context, portfolio, stocks, _scaffoldKey),
+                                // StatsMenu(
+                                //     context, portfolio, stocks, _scaffoldKey),
+                                PerformanceGraph(
+                                    performanceData, portfolio, _scaffoldKey),
                                 OpenOrdersCard(context)
                               ],
                             ),

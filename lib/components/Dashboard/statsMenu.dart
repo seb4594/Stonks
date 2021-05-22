@@ -74,9 +74,12 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
                       children: [
                           Row(
                             children: [
-                              Icon(Icons.insert_chart_outlined_sharp),
+                              Icon(
+                                Icons.insert_chart_outlined_sharp,
+                                size: 15,
+                              ),
                               Text(portfolio.equity.toStringAsFixed(2) ?? '0.0',
-                                  style: TextStyle(fontSize: 20))
+                                  style: TextStyle(fontSize: 15))
                             ],
                           ),
                           Row(
@@ -85,11 +88,11 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
                               Text(
                                   portfolio.preformance.toStringAsFixed(2) ??
                                       '0.0',
-                                  style: TextStyle(fontSize: 20)),
+                                  style: TextStyle(fontSize: 15)),
                               Text(
-                                '  % ',
+                                '%',
                                 style: TextStyle(
-                                    fontSize: 30, fontWeight: FontWeight.bold),
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),

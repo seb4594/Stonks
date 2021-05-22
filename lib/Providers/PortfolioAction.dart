@@ -26,6 +26,11 @@ class PortfolioAction with ChangeNotifier {
 
   List openOrders = [];
 
+  List<Map> _preformanceData = [];
+  List<Map> get preformanceData {
+    return _preformanceData;
+  }
+
   List<Senator> _senatorStocks = [];
   List<Senator> get currentSenatorStock {
     return [..._senatorStocks];
@@ -299,12 +304,16 @@ class PortfolioAction with ChangeNotifier {
     final resp = await http.get(barUrl, headers: headers);
     final extract = json.decode(resp.body) as Map;
     final timeFrames = extract['$ticker'] as List;
-    // print('TIME FRAME');
-    // print(timeFrames[0]);
+
+    final url2 =
+        'https://0c9or3.deta.dev/read_upMentions?symbol=$ticker&time=1';
+    final response2 = await http.get(url2);
+    final extract2 = json.decode(response2.body) as List;
 
     return {
       'CurrentData': extractedData,
-      'Bars': BarData(timeWindows: timeFrames)
+      'Bars': BarData(timeWindows: timeFrames),
+      'reddit': extract2
     };
   }
 
@@ -407,7 +416,7 @@ class PortfolioAction with ChangeNotifier {
       final resp = await http.get(url);
       final extract = json.decode(resp.body) as Map<String, dynamic>;
 
-      print(extract);
+      // print(extract);
       // print(resp.statusCode);
       // print(resp.body);
 
@@ -425,6 +434,8 @@ class PortfolioAction with ChangeNotifier {
   Future<void> fetchAccount() async {
     const url = "https://paper-api.alpaca.markets/v2/account";
     const posUrl = "https://paper-api.alpaca.markets/v2/positions";
+    const prefUrl =
+        'https://paper-api.alpaca.markets/v2/account/portfolio/history?period=1W&timeframe=1D';
     const apiKey = "PKW2IW2FYUSY2W4Q6AAO";
     const sKey = "0JzCIAVFRp4OsNGbLh5GwPM9VOdP7nka6cahSur8";
 
@@ -434,6 +445,11 @@ class PortfolioAction with ChangeNotifier {
 
       final stockResponse = await http.get(posUrl,
           headers: {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey});
+
+      final graphData = await http.get(prefUrl, headers: headers);
+      final preformanceExtract = json.decode(graphData.body);
+      _preformanceData.add(preformanceExtract);
+
       final extract = json.decode(response.body) as Map<String, dynamic>;
       final stockExtract = json.decode(stockResponse.body) as List;
       List<Stock> positions = [];
@@ -479,10 +495,10 @@ class PortfolioAction with ChangeNotifier {
     try {
       final response = await http.get(url, headers: headers);
       final extract = json.decode(response.body) as List;
-      print(extract);
+      // print(extract);
 
       extract.forEach((order) {
-        openOrders.add(order);
+        openOrders.add(order as Map);
       });
 
       notifyListeners();

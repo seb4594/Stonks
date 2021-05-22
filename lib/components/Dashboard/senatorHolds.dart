@@ -47,7 +47,7 @@ class _SenatorHoldsState extends State<SenatorHolds> {
             ),
             Container(
               padding: EdgeInsets.only(left: 10, right: 10),
-              height: 400,
+              height: 320,
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   List<Widget> senatorCard = [];

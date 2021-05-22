@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: SideMenu(),
-              flex: _size.width > 1340 ? 1 : 2,
+              flex: _size.width > 1340 ? 1 : 1,
             ),
             Expanded(
               child: currentPage(),

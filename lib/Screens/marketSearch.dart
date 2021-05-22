@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:stonks/Providers/BarData.dart';
 
 import 'package:stonks/Providers/PortfolioAction.dart';
@@ -48,14 +49,42 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
     List<Widget> dataList(Map<String, dynamic> data) {
       print(data);
       List<Widget> widgetList = [];
+
+      int foo = 0;
+      Map titles = {
+        'o': 'Open',
+        'h': 'High',
+        'l': 'Low',
+        'c': 'Close',
+        'v': "Volume"
+      };
       data.forEach(
         (e, ee) {
-          widgetList.add(
-            ListTile(
-              title: Text(e),
-              subtitle: Text(ee.toString()),
-            ),
-          );
+          if (e == 't') {
+            var date = DateTime.fromMillisecondsSinceEpoch(ee * 1000);
+            var formattedDate = DateFormat.yMMMd().format(date);
+
+            widgetList.add(
+              ListTile(
+                title: Text(
+                  'Time',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                subtitle: Text(formattedDate,
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
+              ),
+            );
+          } else {
+            widgetList.add(
+              ListTile(
+                dense: true,
+                title: Text(
+                  "${titles[e]}: ${ee.toString()} ",
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ),
+            );
+          }
         },
       );
 
@@ -112,7 +141,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                     : Container(
                         margin: EdgeInsets.only(top: 30),
                         width: double.infinity,
-                        height: height * .8,
+                        height: height * .823,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
                             color: Colors.white),
@@ -120,7 +149,9 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                           future: _searchData,
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.data != null) {
+                            if (snapshot.data != null &&
+                                snapshot.connectionState ==
+                                    ConnectionState.done) {
                               final data = snapshot.data['CurrentData'];
                               final price = data[searchKey][0]['c'];
                               final ticker = searchKey;
@@ -179,8 +210,8 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                                   // ),
                                   Container(
                                     width: width,
-                                    height: height * .4,
-                                    color: Colors.black,
+                                    height: height * .31,
+                                    color: Colors.grey[900],
                                     padding: EdgeInsets.all(30),
                                     child: CustomPaint(
                                       size: Size(width, height * .4),
@@ -188,19 +219,86 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                                           stockData: snapshot.data['Bars']),
                                     ),
                                   ),
-                                  SizedBox(
+                                  Container(
+                                    color: Colors.grey[850],
                                     height: 10,
                                   ),
                                   Container(
-                                      color: Colors.black,
-                                      width: width,
-                                      height: height * .1,
-                                      child: CustomPaint(
-                                        size: Size.infinite,
-                                        painter: StockVolumePainter(
-                                            stockData: snapshot.data['Bars']),
-                                      )),
-                                  ...dataList(data[searchKey][0]),
+                                    color: Colors.grey[900],
+                                    width: width,
+                                    height: height * .1,
+                                    child: CustomPaint(
+                                      size: Size.infinite,
+                                      painter: StockVolumePainter(
+                                          stockData: snapshot.data['Bars']),
+                                    ),
+                                  ),
+
+                                  Container(
+                                    width: width,
+                                    height: height * .4,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            color: Colors.grey[900],
+                                            height: double.infinity,
+                                            width: double.infinity,
+                                            child: Column(
+                                              children: [
+                                                ...dataList(data[searchKey][0])
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Container(
+                                            height: double.infinity,
+                                            width: width / 3,
+                                            color: Colors.grey[900],
+                                            child: ListView.builder(
+                                                itemBuilder: (context, index) {
+                                                  return snapshot.data['reddit']
+                                                              .length >
+                                                          0
+                                                      ? ListTile(
+                                                          title: Text(
+                                                            searchKey,
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .grey[500]),
+                                                          ),
+                                                          subtitle: Text(
+                                                              snapshot.data[
+                                                                          'reddit']
+                                                                      [index]
+                                                                  ['title'],
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white)),
+                                                        )
+                                                      : Center(
+                                                          child: Text(
+                                                            'No Mentions Found',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        );
+                                                },
+                                                itemCount: snapshot
+                                                    .data['reddit'].length),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Container(),
+                                          flex: 2,
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               );
                             } else {

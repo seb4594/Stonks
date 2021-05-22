@@ -37,11 +37,14 @@ Widget OpenOrdersCard(BuildContext context) {
           ),
           Center(
             child: Container(
-              height: 450,
+              height: 320,
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   List<Widget> stonksCard = [];
                   openOrders.forEach((element) {
+                    String price = element['type'] == 'market'
+                        ? 'Market'
+                        : element['limit_price'];
                     stonksCard.add(InkWell(
                       onTap: () {},
                       child: Container(
@@ -55,7 +58,7 @@ Widget OpenOrdersCard(BuildContext context) {
                         child: Row(
                           children: [
                             Text(
-                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toString()}'),
+                                ' ${element['qty']} ${element['symbol']} @ ${price}'),
                           ],
                         ),
                       ),

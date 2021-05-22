@@ -8,10 +8,18 @@ import 'package:stonks/Screens/homeScreen.dart';
 import 'package:stonks/Screens/marketSearch.dart';
 import 'package:stonks/Screens/positionDetailScreen.dart';
 import './Providers/AuthService.dart';
+import 'package:window_size/window_size.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle('Stonks');
+    setWindowMinSize(const Size(1200, 800));
+    setWindowMaxSize(Size.infinite);
+  }
   runApp(MyApp());
 }
 
