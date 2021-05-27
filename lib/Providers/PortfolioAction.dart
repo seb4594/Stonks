@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:math';
+
 import 'package:stonks/Providers/BarData.dart';
 
 import './senator.dart';
@@ -18,6 +17,8 @@ class PortfolioAction with ChangeNotifier {
   // final Future<String> futureAuth;
   final userId;
   final user = FirebaseAuth.instance;
+  String email = 'seb4594@gmail.com';
+  String name = 'Sebastian';
 
   List<Stock> _stocks = [];
   List<Stock> get currentStocks {
@@ -48,244 +49,107 @@ class PortfolioAction with ChangeNotifier {
     stocks: <Stock>[],
   );
 
+//    ___  ___  _______ _______  _____
+//   / _ )/ _ |/ ___/ //_/ __/ |/ / _ \
+//  / _  / __ / /__/ ,< / _//    / // /
+// /____/_/ |_\___/_/|_/___/_/|_/____/
+
   Future<void> newPortfolio() async {
     final idToken = await user.currentUser.getIdToken();
     final portfolioUrl =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
+        'http://155.138.240.253/newUser?name=$name&email=$email&cash=5000';
     try {
-      final response = await http.patch(
-        portfolioUrl,
-        body: json.encode(
-          {'cash': 1000, 'equity': 0.0, 'preformance': 0.0},
-        ),
-      );
+      final response = await http.get(portfolioUrl);
     } catch (e) {}
   }
 
   Future<void> fetchPortfolio() async {
-    final idToken = await user.currentUser.getIdToken();
-
-    // final stocksUrl =
-    //     'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks.json?auth=$idToken';
-    final portfolioUrl =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio.json?auth=$idToken';
+    final transactionsUrl =
+        'http://155.138.240.253/fetchTransactions?email=$email';
+    final positionsUrl = 'http://155.138.240.253/fetchPositions?email=$email';
+    final accountUrl =
+        'http://155.138.240.253/fetchAccountDetails?email=$email';
 
     try {
-      final porfolioResponse = await http.get(portfolioUrl);
-      // final response = await http.get(stocksUrl);
-      // final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final exportData =
-          json.decode(porfolioResponse.body) as Map<String, dynamic>;
+      final transactions = await http.get(transactionsUrl);
+      final positions = await http.get(positionsUrl);
+      final account = await http.get(accountUrl);
 
-      // if (extractedData == null) {
-      //   return;
-      // }
-      // final portData = json.decode(porfolioResponse.body)['name'];
-      // print(exportData);
-
+      final transactionsExtract = json.decode(transactions.body) as List;
+      final positionsExtract = json.decode(positions.body) as List;
+      final accountExtract = json.decode(account.body) as Map<String, dynamic>;
       List<Stock> _stocksList = [];
-      // print(extractedData);
+      List accountTransactions = [];
 
-      exportData.forEach(
-        (key, value) {
-          if (key != "stocks") {
-            print(key);
-            print(value['preformance']);
-            activePorfolio = Portfolio(
-              id: key,
-              cash: value['cash'],
-              equity: value['equity'],
-              preformance: value['preformance'],
-              stocks: _stocks,
-            );
-          } else if (key == 'stocks') {
-            // print(key);
-            // print(value);
-            value.forEach(
-              (id, stockData) {
-                double stockAmount = double.parse(
-                  value[id]['stockAmount'],
-                );
+      // print(positionsExtract);
 
-                final fetchedStock = Stock(
-                  // livePrice: livePrice,
-                  id: id,
-                  ticker: stockData['stock'],
-                  company: stockData['company'],
-                  condition: Condition.Buy, //CREATE GENERATOR
-                  amount: stockAmount,
-                  time: DateTime.parse(stockData['time']),
-                  price: double.parse(stockData['price']),
-                );
-
-                _stocksList.add(fetchedStock);
-              },
-            );
-          }
+      transactionsExtract.forEach(
+        (transaction) {
+          accountTransactions.add(transaction);
         },
       );
 
-      _stocks = _stocksList;
+      positionsExtract.forEach(
+        (position) {
+          _stocksList.add(
+            Stock(
+              id: position['time'],
+              ticker: position['symbol'],
+              company: position['company'],
+              condition: Condition.Buy,
+              amount: position['amount'],
+              time: DateTime.now(),
+              price: position['price'],
+            ),
+          );
+        },
+      );
 
+      activePorfolio = Portfolio(
+          cash: accountExtract['cash'],
+          equity: accountExtract['cash'],
+          id: accountExtract['id'].toString(),
+          preformance: accountExtract['cash'],
+          stocks: _stocksList);
+
+      _stocks = _stocksList;
       notifyListeners();
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> placeBuyOrder(
       String stock, double price, double amount, String company) async {
-    final idToken = await user.currentUser.getIdToken();
-
+    final time = DateTime.now().toIso8601String();
     final url =
-        'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks.json?auth=$idToken';
-
-    final date = DateTime.now();
+        'http://155.138.240.253/createBuyOrder?email=$email&time=$time&symbol=$stock&price=$price&amount=$amount';
 
     try {
-      // print(amount);
-      // print(stock);
-      // print(price);
-
-      final response = await http.post(
-        url,
-        body: json.encode(
-          {
-            'time': date.toIso8601String(),
-            'stockAmount': amount.toStringAsFixed(2),
-            'stock': stock,
-            'price': price.toStringAsFixed(2),
-            'company': 'INDEF',
-            'condition': 'buy'
-          },
-        ),
-      );
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-      final portId = activePorfolio.id;
-      print("portid - $portId");
-      final portfolioUrl =
-          'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
-      // print(response.body);
-
-      final cashspent = activePorfolio.cash - amount * price;
-      final equitAq = activePorfolio.equity + amount * price;
-
-      final portResponse = await http.patch(
-        portfolioUrl,
-        body: json.encode(
-          {
-            'cash': cashspent,
-            'equity': equitAq,
-            // 'preformance': activePorfolio.preformance,
-            // 'preformance': 100,
-          },
-        ),
-      );
-      // final portData = json.decode(portResponse.body)['name'];
-      // print(portData);
-      final portfolioId = json.decode(portResponse.body)['name'];
-      print(portfolioId);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-      activePorfolio = Portfolio(
-        id: portfolioId,
-        cash: cashspent,
-        equity: equitAq,
-        preformance: activePorfolio.preformance,
-        stocks: activePorfolio.stocks,
-      );
-
-      _stocks.insert(
-        0,
-        Stock(
-            id: json.decode(response.body)['name'],
-            // id: date.toIso8601String(),
-            time: date,
-            amount: amount,
-            price: price,
-            company: company,
-            condition: Condition.Buy,
-            ticker: stock),
-      );
-      notifyListeners();
+      final response = http.get(url);
     } catch (e) {
       print(e);
-      throw e;
     }
-
-    // SEND TO DATABASE PORTFOLIO
   }
 
   Future<void> placeSellOrder(
-      String id, double amount, double currentPrice) async {
-    Stock stock = _stocks.firstWhere((stock) =>
-        stock.id == id); // MAYBE PUSH STOCK OBJECT FROM ORDER MENU ???
+      String symbol, double amount, double price) async {
+    final time = DateTime.now().toIso8601String();
+    final url =
+        'http://155.138.240.253/createSellOrder?email=$email&time=$time&symbol=$symbol&price=$price&amount=$amount';
 
-    final stockIndex = _stocks.indexWhere((stock) => stock.id == id);
-    activePorfolio = Portfolio(
-        cash: activePorfolio.cash + amount * stock.livePrice,
-        equity: activePorfolio.equity - amount * stock.livePrice,
-        preformance: activePorfolio.preformance,
-        stocks: activePorfolio.stocks);
-
-    if (amount == stock.amount) {
-      //remove from current holding move to history
-      final idToken = await user.currentUser.getIdToken();
-      final url =
-          'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/stocks/$id.json?auth=$idToken';
-      final portfolioUrl =
-          'https://stonks-1b95c-default-rtdb.firebaseio.com/$userId/portfolio/portfolioStats.json?auth=$idToken';
-
-      var cacheStock = _stocks[stockIndex];
-      _stocks.removeAt(stockIndex);
-      try {
-        final response = await http.delete(url);
-        final portRespose = await http.patch(
-          portfolioUrl,
-          body: json.encode(
-            {
-              'cash': activePorfolio.cash + (stock.amount * stock.livePrice),
-              'equity':
-                  activePorfolio.equity - (stock.amount * stock.livePrice),
-            },
-          ),
-        );
-
-        notifyListeners();
-        cacheStock = null;
-      } catch (e) {
-        _stocks.insert(stockIndex, cacheStock);
-        notifyListeners();
-      }
-    }
-
-    if (amount < stock.amount) {
-      final idToken = await user.currentUser.getIdToken();
-      final url =
-          'https://stonks-1b95c-default-rtdb.firebaseio.com/portfolio/stocks/$id.json?auth=$idToken';
-
-      try {
-        final response = await http.patch(url,
-            body: json.encode({'stockAmount': amount.toString()}));
-
-        Stock updatedStock = Stock(
-            id: stock.id,
-            ticker: stock.ticker,
-            company: stock.company,
-            condition: stock.condition,
-            amount: (stock.amount - amount),
-            time: stock.time,
-            price: stock.price);
-
-        _stocks[stockIndex] = updatedStock;
-
-        notifyListeners();
-      } catch (e) {
-        throw e;
-      }
-
-      //update current holdings
+    try {
+      final response = http.get(url);
+    } catch (e) {
+      print(e);
     }
   }
 
-/////////////////
+//    ___   __   ___  ___  ________
+//   / _ | / /  / _ \/ _ |/ ___/ _ |
+//  / __ |/ /__/ ___/ __ / /__/ __ |
+// /_/ |_/____/_/  /_/ |_\___/_/ |_|
+
   final headers = {
     "APCA-API-KEY-ID": "PKLL1CNL8YO5O201JWV0",
     "APCA-API-SECRET-KEY": "cQPMXllyQFo0Bcw2Pv0BxJ8CJqQ0Vn1A3W5PhmH9"
@@ -384,7 +248,11 @@ class PortfolioAction with ChangeNotifier {
       throw e;
     }
   }
-  ///////////////////
+
+//    ___         __   ___ __
+//   / _ \___ ___/ /__/ (_) /_
+//  / , _/ -_) _  / _  / / __/
+// /_/|_|\__/\_,_/\_,_/_/\__/
 
   Future<void> fetchSenatorData() async {
     try {
@@ -430,85 +298,4 @@ class PortfolioAction with ChangeNotifier {
       throw e;
     }
   }
-
-  Future<void> fetchAccount() async {
-    const url = "https://paper-api.alpaca.markets/v2/account";
-    const posUrl = "https://paper-api.alpaca.markets/v2/positions";
-    const prefUrl =
-        'https://paper-api.alpaca.markets/v2/account/portfolio/history?period=1W&timeframe=1D';
-    const apiKey = "PKW2IW2FYUSY2W4Q6AAO";
-    const sKey = "0JzCIAVFRp4OsNGbLh5GwPM9VOdP7nka6cahSur8";
-
-    try {
-      final response = await http.get(url,
-          headers: {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey});
-
-      final stockResponse = await http.get(posUrl,
-          headers: {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey});
-
-      final graphData = await http.get(prefUrl, headers: headers);
-      final preformanceExtract = json.decode(graphData.body);
-      _preformanceData.add(preformanceExtract);
-
-      final extract = json.decode(response.body) as Map<String, dynamic>;
-      final stockExtract = json.decode(stockResponse.body) as List;
-      List<Stock> positions = [];
-
-      stockExtract.forEach(
-        (element) {
-          Stock newStock = Stock(
-              id: element['asset_id'],
-              ticker: element['symbol'],
-              company: element['symbol'],
-              condition: Condition.Buy,
-              amount: double.parse(element['qty']),
-              time: DateTime.now(),
-              price: double.parse(element['avg_entry_price']));
-          positions.add(newStock);
-        },
-      );
-
-      final preformance = (double.parse(extract['last_equity']) -
-          double.parse(extract['equity']));
-      _stocks = positions;
-
-      activePorfolio = Portfolio(
-          cash: double.parse(extract['cash']),
-          equity: double.parse(extract['equity']),
-          id: extract['id'],
-          preformance: preformance,
-          stocks: _stocks);
-
-      notifyListeners();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> fetchOrders() async {
-    const url = "https://paper-api.alpaca.markets/v2/orders";
-    const posUrl = "https://paper-api.alpaca.markets/v2/positions";
-    const apiKey = "PKW2IW2FYUSY2W4Q6AAO";
-    const sKey = "0JzCIAVFRp4OsNGbLh5GwPM9VOdP7nka6cahSur8";
-    const headers = {"APCA-API-KEY-ID": apiKey, 'APCA-API-SECRET-KEY': sKey};
-
-    try {
-      final response = await http.get(url, headers: headers);
-      final extract = json.decode(response.body) as List;
-      // print(extract);
-
-      extract.forEach((order) {
-        openOrders.add(order as Map);
-      });
-
-      notifyListeners();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  ///////////////////
-  ///
-  ///
-
 }

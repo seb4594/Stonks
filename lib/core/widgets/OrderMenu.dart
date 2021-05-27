@@ -58,9 +58,10 @@ class _OrderMenuState extends State<OrderMenu> {
           '');
     } else {
       Provider.of<PortfolioAction>(context, listen: false).placeSellOrder(
-          widget.ownedStock.id,
-          amountKey,
-          widget.data[widget.searchKey][0]['c']);
+        widget.searchKey,
+        amountKey,
+        widget.data[widget.searchKey][0]['c'],
+      );
     }
     Navigator.of(context).pop();
   }
@@ -209,6 +210,9 @@ class _OrderMenuState extends State<OrderMenu> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    print(widget.data);
+    print(widget.searchKey);
     return Container(
       // padding: EdgeInsets.all(20),
       width: width,

@@ -134,7 +134,8 @@ class PositionDetailScreen extends StatelessWidget {
                 onTap: () => showModalBottomSheet(
                   context: context,
                   builder: (context) {
-                    return OrderMenu(data, Condition.Sell, stock.ticker, stock);
+                    return OrderMenu(data['CurrentData'], Condition.Sell,
+                        stock.ticker, stock);
                   },
                 ).then((value) =>
                     Provider.of<ScreenManager>(context, listen: false)

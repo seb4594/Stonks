@@ -102,7 +102,7 @@ class PerformanceGraph extends StatelessWidget {
         child: graphData.length == 0
             ? Center(
                 child: CircularProgressIndicator(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Colors.white ,
                 ),
               )
             : Column(

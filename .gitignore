@@ -46,3 +46,6 @@ android/
 web/
 ios/
 macos
+macos/Podfile.lock
+macos/Flutter/GeneratedPluginRegistrant.swift
+/macos/

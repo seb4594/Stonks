@@ -28,22 +28,15 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-    Provider.of<PortfolioAction>(context, listen: false).fetchAccount().then(
+    Provider.of<PortfolioAction>(context, listen: false).fetchPortfolio().then(
           (_) => Provider.of<PortfolioAction>(context, listen: false)
               .getLiveData()
               .then(
                 (_) => Provider.of<PortfolioAction>(context, listen: false)
                     .fetchSenatorData()
-                    .then(
-                      (_) =>
-                          Provider.of<PortfolioAction>(context, listen: false)
-                              .fetchReddit()
-                              .then(
-                                (_) => Provider.of<PortfolioAction>(context,
-                                        listen: false)
-                                    .fetchOrders(),
-                              ),
-                    ),
+                    .then((_) =>
+                        Provider.of<PortfolioAction>(context, listen: false)
+                            .fetchReddit()),
               ),
         );
 
@@ -94,10 +87,10 @@ class _DashBoardState extends State<DashBoard> {
                             flex: 1,
                             child: Row(
                               children: [
-                                // StatsMenu(
-                                //     context, portfolio, stocks, _scaffoldKey),
-                                PerformanceGraph(
-                                    performanceData, portfolio, _scaffoldKey),
+                                StatsMenu(
+                                    context, portfolio, stocks, _scaffoldKey),
+                                // PerformanceGraph(
+                                //     performanceData, portfolio, _scaffoldKey),
                                 OpenOrdersCard(context)
                               ],
                             ),

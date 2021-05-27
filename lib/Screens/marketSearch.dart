@@ -293,9 +293,45 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                                           ),
                                         ),
                                         Expanded(
-                                          child: Container(),
+                                          child: Container(
+                                            color: Colors.grey[900],
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () =>
+                                                        showModalBottomSheet(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return OrderMenu(
+                                                            data,
+                                                            Condition.Buy,
+                                                            searchKey);
+                                                      },
+                                                    ),
+                                                    child: Container(
+                                                      color: Colors.green,
+                                                      width: width * .2,
+                                                      height: height * .08,
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      color: Colors.red,
+                                                      width: width * .2,
+                                                      height: height * .08,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                           flex: 2,
-                                        )
+                                        ),
                                       ],
                                     ),
                                   ),
