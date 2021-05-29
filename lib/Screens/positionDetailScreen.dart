@@ -65,7 +65,7 @@ class PositionDetailScreen extends StatelessWidget {
             children: [
               Text('Current Equity', style: TextStyle(fontSize: 25)),
               Text(
-                  'Amount ${stock.amount} x ${stock.livePrice} = ${(stock.amount * stock.livePrice).roundToDouble()}',
+                  'Amount ${stock.amount} x ${stock.livePrice} = ', //${(stock.amount * stock.livePrice).roundToDouble()}',
                   style: TextStyle(fontSize: 25))
             ],
           ),
@@ -135,7 +135,7 @@ class PositionDetailScreen extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return OrderMenu(data['CurrentData'], Condition.Sell,
-                        stock.ticker, stock);
+                        stock.ticker, stock.crypto, stock);
                   },
                 ).then((value) =>
                     Provider.of<ScreenManager>(context, listen: false)

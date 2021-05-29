@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stonks/Providers/screenManager.dart';
+import 'package:window_size/window_size.dart';
 
 import '../constants.dart';
 import '../extensions.dart';
@@ -15,6 +16,7 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
       height: double.infinity,
       padding: EdgeInsets.only(top: kIsWeb ? kDefaultPadding : 0),
@@ -75,7 +77,7 @@ class SideMenu extends StatelessWidget {
                 // onPressed: () => Navigator.of(context).pushNamed('/market'),
                 onPressed: () =>
                     Provider.of<ScreenManager>(context, listen: false)
-                        .changePage('/marketSearch'),
+                        .changePage('/marketSearch', false),
                 child: Text(
                   "Search Market",
                   style: TextStyle(color: Colors.white),
@@ -84,6 +86,25 @@ class SideMenu extends StatelessWidget {
                 topShadowColor: Colors.white,
                 bottomShadowColor: Color(0xFF234395).withOpacity(0.2),
               ),
+              SizedBox(
+                height: 15,
+              ),
+
+              InkWell(
+                  onTap: () =>
+                      Provider.of<ScreenManager>(context, listen: false)
+                          .changePage('/marketSearch', true),
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.blue),
+                    width: size.width * .14,
+                    height: 45,
+                    child: Center(
+                      child: Text(
+                        "Crypto Market",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  )),
               SizedBox(height: kDefaultPadding),
               // ignore: deprecated_member_use
 

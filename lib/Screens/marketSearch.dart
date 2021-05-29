@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:stonks/Providers/BarData.dart';
-
 import 'package:stonks/Providers/PortfolioAction.dart';
+
 import 'package:stonks/Providers/Stock.dart';
+import 'package:stonks/Providers/screenManager.dart';
 import 'package:stonks/core/widgets/OrderMenu.dart';
 import 'package:stonks/core/widgets/side_menu.dart';
 
@@ -24,7 +25,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
   }
 
   final _form = GlobalKey<FormState>();
-  void _saveForm(BuildContext context) async {
+  void _saveForm(BuildContext context, bool isCrypto) async {
     if (!_form.currentState.validate()) {
       return;
     }
@@ -33,8 +34,11 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
       isLoading = true;
     });
     print(searchKey);
-    _searchData = Provider.of<PortfolioAction>(context, listen: false)
-        .getStockData(searchKey);
+    _searchData = isCrypto
+        ? Provider.of<PortfolioAction>(context, listen: false)
+            .getCryptoInfo(searchKey)
+        : Provider.of<PortfolioAction>(context, listen: false)
+            .getStockData(searchKey);
 
     setState(() {
       isLoading = false;
@@ -45,6 +49,8 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    final isCrypto = Provider.of<ScreenManager>(context).currentArgs;
 
     List<Widget> dataList(Map<String, dynamic> data) {
       print(data);
@@ -127,7 +133,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                   ),
                   SizedBox(width: 100),
                   ElevatedButton(
-                      onPressed: () => _saveForm(context),
+                      onPressed: () => _saveForm(context, isCrypto),
                       child: Text('Search'))
                 ],
               ),
@@ -139,176 +145,271 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                   )
                 : isLoading
                     ? CircularProgressIndicator()
-                    : Container(
-                        margin: EdgeInsets.only(top: 30),
-                        width: double.infinity,
-                        height: height * .823,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.white),
-                        child: FutureBuilder(
-                          future: _searchData,
-                          builder:
-                              (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.connectionState !=
-                                ConnectionState.done) {
-                              return Center(child: CircularProgressIndicator());
-                            }
+                    : isCrypto
+                        ? Container(
+                            margin: EdgeInsets.only(top: 30),
+                            width: double.infinity,
+                            height: height * .823,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white),
+                            child: FutureBuilder(
+                                future: _searchData,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot snapshot) {
+                                  print(isCrypto);
+                                  final data = snapshot.data;
+                                  print(data);
+                                  if (snapshot.connectionState !=
+                                      ConnectionState.done) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }
 
-                            if (snapshot.data != null &&
-                                snapshot.data['CurrentData'][searchKey]
-                                        .length ==
-                                    0 &&
-                                snapshot.connectionState ==
-                                    ConnectionState.done) {
-                              return Center(
-                                  child: Text('$searchKey Not Found'));
-                            }
-                            if (snapshot.data != null &&
-                                snapshot.connectionState ==
-                                    ConnectionState.done) {
-                              final data = snapshot.data['CurrentData'];
-                              final price = data[searchKey][0]['c'];
-                              final ticker = searchKey;
+                                  if (snapshot.data != null &&
+                                      snapshot.data[searchKey].length == 0 &&
+                                      snapshot.connectionState ==
+                                          ConnectionState.done) {
+                                    return Center(
+                                        child: Text('$searchKey Not Found'));
+                                  }
 
-                              return ListView(
-                                children: [
-                                  Container(
-                                    width: width,
-                                    height: height * .31,
-                                    color: Colors.grey[900],
-                                    padding: EdgeInsets.all(30),
-                                    child: CustomPaint(
-                                      size: Size(width, height * .4),
-                                      painter: StockCandleStickPainter(
-                                          stockData: snapshot.data['Bars']),
-                                    ),
-                                  ),
-                                  Container(
-                                    color: Colors.grey[850],
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    color: Colors.grey[900],
-                                    width: width,
-                                    height: height * .1,
-                                    child: CustomPaint(
-                                      size: Size.infinite,
-                                      painter: StockVolumePainter(
-                                          stockData: snapshot.data['Bars']),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: width,
-                                    height: height * .4,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            color: Colors.grey[900],
-                                            height: double.infinity,
-                                            width: double.infinity,
-                                            child: Column(
-                                              children: [
-                                                ...dataList(data[searchKey][0])
-                                              ],
+                                  return ListView(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 4,
+                                            child: Container(
+                                              height: height,
                                             ),
                                           ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: Container(
-                                            height: double.infinity,
-                                            width: width / 3,
-                                            color: Colors.grey[900],
-                                            child: ListView.builder(
-                                                itemBuilder: (context, index) {
-                                                  return snapshot.data['reddit']
-                                                              .length >
-                                                          0
-                                                      ? ListTile(
-                                                          title: Text(
-                                                            searchKey,
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .grey[500]),
-                                                          ),
-                                                          subtitle: Text(
-                                                              snapshot.data[
-                                                                          'reddit']
-                                                                      [index]
-                                                                  ['title'],
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white)),
-                                                        )
-                                                      : Center(
-                                                          child: Text(
-                                                            'No Mentions Found',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white),
-                                                          ),
-                                                        );
-                                                },
-                                                itemCount: snapshot
-                                                    .data['reddit'].length),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(
-                                            color: Colors.grey[900],
-                                            child: Center(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () =>
-                                                        showModalBottomSheet(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return OrderMenu(
-                                                            data,
-                                                            Condition.Buy,
-                                                            searchKey);
-                                                      },
+                                          Expanded(
+                                            child: Container(
+                                              height: height * .3,
+                                              color: Colors.grey[900],
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () =>
+                                                          showModalBottomSheet(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return OrderMenu(
+                                                              data,
+                                                              Condition.Buy,
+                                                              searchKey,
+                                                              isCrypto);
+                                                        },
+                                                      ),
+                                                      child: Container(
+                                                        color: Colors.green,
+                                                        width: width * .2,
+                                                        height: height * .08,
+                                                      ),
                                                     ),
-                                                    child: Container(
-                                                      color: Colors.green,
-                                                      width: width * .2,
-                                                      height: height * .08,
+                                                    InkWell(
+                                                      onTap: () {},
+                                                      child: Container(
+                                                        color: Colors.red,
+                                                        width: width * .2,
+                                                        height: height * .08,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  InkWell(
-                                                    onTap: () {},
-                                                    child: Container(
-                                                      color: Colors.red,
-                                                      width: width * .2,
-                                                      height: height * .08,
-                                                    ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
+                                            flex: 2,
                                           ),
-                                          flex: 2,
+                                        ],
+                                      )
+                                    ],
+                                  );
+                                }),
+                          )
+                        : Container(
+                            margin: EdgeInsets.only(top: 30),
+                            width: double.infinity,
+                            height: height * .823,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white),
+                            child: FutureBuilder(
+                              future: _searchData,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot snapshot) {
+                                if (snapshot.connectionState !=
+                                    ConnectionState.done) {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                }
+
+                                if (snapshot.data != null &&
+                                    snapshot.data['CurrentData'][searchKey]
+                                            .length ==
+                                        0 &&
+                                    snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                  return Center(
+                                      child: Text('$searchKey Not Found'));
+                                }
+                                if (snapshot.data != null &&
+                                    snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                  final data = snapshot.data['CurrentData'];
+                                  final price = data[searchKey][0]['c'];
+                                  final ticker = searchKey;
+
+                                  return ListView(
+                                    children: [
+                                      Container(
+                                        width: width,
+                                        height: height * .31,
+                                        color: Colors.grey[900],
+                                        padding: EdgeInsets.all(30),
+                                        child: CustomPaint(
+                                          size: Size(width, height * .4),
+                                          painter: StockCandleStickPainter(
+                                              stockData: snapshot.data['Bars']),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            } else {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
-                        ),
-                      ),
+                                      ),
+                                      Container(
+                                        color: Colors.grey[850],
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        color: Colors.grey[900],
+                                        width: width,
+                                        height: height * .1,
+                                        child: CustomPaint(
+                                          size: Size.infinite,
+                                          painter: StockVolumePainter(
+                                              stockData: snapshot.data['Bars']),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: width,
+                                        height: height * .4,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 1,
+                                              child: Container(
+                                                color: Colors.grey[900],
+                                                height: double.infinity,
+                                                width: double.infinity,
+                                                child: Column(
+                                                  children: [
+                                                    ...dataList(
+                                                        data[searchKey][0])
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Container(
+                                                height: double.infinity,
+                                                width: width / 3,
+                                                color: Colors.grey[900],
+                                                child: ListView.builder(
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return snapshot
+                                                                  .data[
+                                                                      'reddit']
+                                                                  .length >
+                                                              0
+                                                          ? ListTile(
+                                                              title: Text(
+                                                                searchKey,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        500]),
+                                                              ),
+                                                              subtitle: Text(
+                                                                  snapshot.data[
+                                                                              'reddit']
+                                                                          [
+                                                                          index]
+                                                                      ['title'],
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white)),
+                                                            )
+                                                          : Center(
+                                                              child: Text(
+                                                                'No Mentions Found',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                            );
+                                                    },
+                                                    itemCount: snapshot
+                                                        .data['reddit'].length),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                color: Colors.grey[900],
+                                                child: Center(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    children: [
+                                                      InkWell(
+                                                        onTap: () =>
+                                                            showModalBottomSheet(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return OrderMenu(
+                                                                data,
+                                                                Condition.Buy,
+                                                                searchKey,
+                                                                isCrypto);
+                                                          },
+                                                        ),
+                                                        child: Container(
+                                                          color: Colors.green,
+                                                          width: width * .2,
+                                                          height: height * .08,
+                                                        ),
+                                                      ),
+                                                      InkWell(
+                                                        onTap: () {},
+                                                        child: Container(
+                                                          color: Colors.red,
+                                                          width: width * .2,
+                                                          height: height * .08,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              flex: 2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
           ],
         ),
       ),

@@ -60,7 +60,7 @@ Widget openPositionsCard(BuildContext context, List<Stock> currentStocks) {
                         child: Row(
                           children: [
                             Text(
-                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toString()}'),
+                                ' ${element.amount} ${element.ticker} @ ${element.livePrice.toString() == 'null' ? element.price.toStringAsFixed(3) : element.livePrice.toString()}'),
                           ],
                         ),
                       ),

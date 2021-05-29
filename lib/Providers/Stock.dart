@@ -12,6 +12,7 @@ class Stock with ChangeNotifier {
   final DateTime time;
   final double livePrice;
   final Condition condition;
+  final bool crypto;
 
   Stock({
     @required this.id,
@@ -22,5 +23,6 @@ class Stock with ChangeNotifier {
     @required this.time,
     this.livePrice,
     @required this.price,
+    @required this.crypto,
   });
 }

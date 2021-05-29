@@ -91,14 +91,15 @@ class PortfolioAction with ChangeNotifier {
         (transaction) {
           accountTransactions.add(
             Transaction(
-              userId: transaction['user'],
-              ticker: transaction['symbol'],
-              condition:
-                  transaction['side'] == 'BUY' ? Condition.Buy : Condition.Sell,
-              amount: transaction['amount'],
-              time: transaction['time'],
-              price: transaction['price'],
-            ),
+                userId: transaction['user'],
+                ticker: transaction['symbol'],
+                condition: transaction['side'] == 'BUY'
+                    ? Condition.Buy
+                    : Condition.Sell,
+                amount: transaction['amount'],
+                time: transaction['time'],
+                price: transaction['price'],
+                crypto: transaction['crypto'] == 'TRUE' ? true : false),
           );
         },
       );
@@ -107,14 +108,14 @@ class PortfolioAction with ChangeNotifier {
         (position) {
           _stocksList.add(
             Stock(
-              id: position['time'],
-              ticker: position['symbol'],
-              company: position['company'],
-              condition: Condition.Buy,
-              amount: position['amount'],
-              time: DateTime.now(),
-              price: position['price'],
-            ),
+                id: position['time'],
+                ticker: position['symbol'],
+                company: position['company'],
+                condition: Condition.Buy,
+                amount: position['amount'],
+                time: DateTime.now(),
+                price: position['price'],
+                crypto: position['crypto'] == 'TRUE' ? true : false),
           );
         },
       );
@@ -134,13 +135,13 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> placeBuyOrder(
-      String stock, double price, double amount, String company) async {
+      String stock, double price, double amount, String crypto) async {
     final time = DateTime.now().toIso8601String();
     final url =
-        'http://155.138.240.253/createBuyOrder?email=$email&time=$time&symbol=$stock&price=$price&amount=$amount';
+        'http://155.138.240.253/createBuyOrder?email=$email&time=$time&symbol=$stock&price=$price&amount=$amount&crypto=$crypto';
 
     try {
-      final response = http.get(url);
+      final response = await http.get(url);
     } catch (e) {
       print(e);
     }
@@ -153,7 +154,7 @@ class PortfolioAction with ChangeNotifier {
         'http://155.138.240.253/createSellOrder?email=$email&time=$time&symbol=$symbol&price=$price&amount=$amount';
 
     try {
-      final response = http.get(url);
+      final response = await http.get(url);
     } catch (e) {
       print(e);
     }
@@ -187,6 +188,7 @@ class PortfolioAction with ChangeNotifier {
         'https://0c9or3.deta.dev/read_upMentions?symbol=$ticker&time=1';
     final response2 = await http.get(url2);
     final extract2 = json.decode(response2.body) as List;
+    print(extractedData);
 
     return {
       'CurrentData': extractedData,
@@ -196,20 +198,19 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> getLiveData() async {
-    // print('Starting Getlive Data');
-    // print(currentStocks.length);
-    // print(_stocks.length);
     double startEq = 0.0;
     double lastEq = 0.0;
-
-    // Stock stock = _stocks.firstWhere((stock) => stock.id == id);\
-    // final stockIndex = _stocks.indexWhere((stock) => stock.id == id);
 
     final openPositions = currentStocks;
 
     List stockTickers = [];
+    List cryptos = [];
     openPositions.forEach((stock) {
-      stockTickers.add(stock.ticker);
+      if (!stock.crypto) {
+        stockTickers.add(stock.ticker);
+      } else {
+        cryptos.add(stock.ticker);
+      }
 
       startEq = startEq + stock.amount * stock.price;
     });
@@ -223,7 +224,6 @@ class PortfolioAction with ChangeNotifier {
           'https://data.alpaca.markets/v1/bars/1D?symbols=$stockString&limit=1';
       final response = await http.get(url, headers: headers);
       final extractedData = jsonDecode(response.body) as Map;
-      // print(extractedData);
 
       openPositions.forEach(
         (stock) {
@@ -244,6 +244,7 @@ class PortfolioAction with ChangeNotifier {
               price: stock.price,
               ticker: stock.ticker,
               time: stock.time,
+              crypto: stock.crypto,
               livePrice: extractedData[stock.ticker][0]['c'] + 0.00);
         },
       );
@@ -311,5 +312,21 @@ class PortfolioAction with ChangeNotifier {
     } catch (e) {
       throw e;
     }
+  }
+
+//   __________  _____  __________
+//  / ___/ _ \ \/ / _ \/_  __/ __ \
+// / /__/ , _/\  / ___/ / / / /_/ /
+// \___/_/|_| /_/_/    /_/  \____/
+
+  Future<dynamic> getCryptoInfo(String ticker) async {
+    final url = 'http://155.138.240.253/crypto/fetchPrice?ticker=$ticker';
+
+    try {
+      final resp = await http.get(url);
+      final extract = json.decode(resp.body) as Map;
+
+      return extract;
+    } catch (e) {}
   }
 }

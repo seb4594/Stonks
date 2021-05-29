@@ -12,8 +12,10 @@ class OrderMenu extends StatefulWidget {
   Condition condition;
   final String searchKey;
   final Stock ownedStock;
+  final bool isCrypto;
 
-  OrderMenu(this.data, this.condition, this.searchKey, [this.ownedStock]);
+  OrderMenu(this.data, this.condition, this.searchKey, this.isCrypto,
+      [this.ownedStock]);
   @override
   _OrderMenuState createState() => _OrderMenuState();
 }
@@ -55,7 +57,7 @@ class _OrderMenuState extends State<OrderMenu> {
           widget.searchKey,
           widget.data[widget.searchKey][0]['c'],
           amountKey,
-          '');
+          widget.isCrypto ? 'TRUE' : 'FALSE');
     } else {
       Provider.of<PortfolioAction>(context, listen: false).placeSellOrder(
         widget.searchKey,

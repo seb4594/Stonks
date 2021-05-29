@@ -58,7 +58,7 @@ Widget transactions(BuildContext context) {
                         child: Row(
                           children: [
                             Text(
-                                ' ${element.amount.toString()} ${element.ticker} @ ${element.price.toString()} - ${condition}'),
+                                ' ${element.amount.toString()} ${element.ticker} @ ${element.price.toStringAsFixed(3)} - ${condition}'),
                           ],
                         ),
                       ),
