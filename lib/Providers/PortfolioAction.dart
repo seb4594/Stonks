@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:stonks/Providers/BarData.dart';
+import 'package:stonks/Providers/transaction.dart';
 
 import './senator.dart';
 
@@ -25,7 +26,10 @@ class PortfolioAction with ChangeNotifier {
     return [..._stocks];
   }
 
-  List openOrders = [];
+  List<Transaction> _transactions = [];
+  List<Transaction> get transactions {
+    return _transactions;
+  }
 
   List<Map> _preformanceData = [];
   List<Map> get preformanceData {
@@ -79,13 +83,23 @@ class PortfolioAction with ChangeNotifier {
       final positionsExtract = json.decode(positions.body) as List;
       final accountExtract = json.decode(account.body) as Map<String, dynamic>;
       List<Stock> _stocksList = [];
-      List accountTransactions = [];
+      List<Transaction> accountTransactions = [];
 
       // print(positionsExtract);
 
       transactionsExtract.forEach(
         (transaction) {
-          accountTransactions.add(transaction);
+          accountTransactions.add(
+            Transaction(
+              userId: transaction['user'],
+              ticker: transaction['symbol'],
+              condition:
+                  transaction['side'] == 'BUY' ? Condition.Buy : Condition.Sell,
+              amount: transaction['amount'],
+              time: transaction['time'],
+              price: transaction['price'],
+            ),
+          );
         },
       );
 
@@ -111,7 +125,7 @@ class PortfolioAction with ChangeNotifier {
           id: accountExtract['id'].toString(),
           preformance: accountExtract['cash'],
           stocks: _stocksList);
-
+      _transactions = accountTransactions;
       _stocks = _stocksList;
       notifyListeners();
     } catch (e) {

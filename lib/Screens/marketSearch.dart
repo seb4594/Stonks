@@ -106,6 +106,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                   Form(
                     key: _form,
                     child: Container(
+                      padding: EdgeInsets.only(left: 100),
                       width: width * .6,
                       child: TextFormField(
                         decoration: InputDecoration(labelText: 'Search'),
@@ -149,6 +150,20 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                           future: _searchData,
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+
+                            if (snapshot.data != null &&
+                                snapshot.data['CurrentData'][searchKey]
+                                        .length ==
+                                    0 &&
+                                snapshot.connectionState ==
+                                    ConnectionState.done) {
+                              return Center(
+                                  child: Text('$searchKey Not Found'));
+                            }
                             if (snapshot.data != null &&
                                 snapshot.connectionState ==
                                     ConnectionState.done) {
@@ -158,56 +173,6 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
 
                               return ListView(
                                 children: [
-                                  // Stack(
-                                  //   children: [
-                                  //     Positioned(
-                                  //       top: 15,
-                                  //       left: 15,
-                                  //       child: Column(
-                                  //         crossAxisAlignment:
-                                  //             CrossAxisAlignment.start,
-                                  //         children: [
-                                  //           Text(
-                                  //             ticker,
-                                  //             // data[1].toString(),
-                                  //             // '',
-                                  //             style: TextStyle(fontSize: 30),
-                                  //           ),
-                                  //           Text(
-                                  //             price.toString(),
-                                  //             style: TextStyle(fontSize: 25),
-                                  //           ),
-                                  //         ],
-                                  //       ),
-                                  //     ),
-                                  //     Positioned(
-                                  //       child: InkWell(
-                                  //         onTap: () => showModalBottomSheet(
-                                  //             context: context,
-                                  //             builder: (context) {
-                                  //               return OrderMenu(data,
-                                  //                   Condition.Buy, searchKey);
-                                  //             }),
-                                  //         child: Container(
-                                  //           child: Center(
-                                  //               child: Text(
-                                  //             'Buy',
-                                  //             style: TextStyle(fontSize: 20),
-                                  //           )),
-                                  //           width: width * .2,
-                                  //           height: height * .05,
-                                  //           decoration: BoxDecoration(
-                                  //             borderRadius:
-                                  //                 BorderRadius.circular(20),
-                                  //             color: Colors.blue,
-                                  //           ),
-                                  //         ),
-                                  //       ),
-                                  //       bottom: 15,
-                                  //       right: 15,
-                                  //     )
-                                  //   ],
-                                  // ),
                                   Container(
                                     width: width,
                                     height: height * .31,
@@ -233,7 +198,6 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                                           stockData: snapshot.data['Bars']),
                                     ),
                                   ),
-
                                   Container(
                                     width: width,
                                     height: height * .4,

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:stonks/Providers/PortfolioAction.dart';
 import 'package:provider/provider.dart';
+import 'package:stonks/Providers/Stock.dart';
 import 'package:stonks/core/responsive.dart';
 
-Widget OpenOrdersCard(BuildContext context) {
+Widget transactions(BuildContext context) {
   final size = MediaQuery.of(context).size;
 
-  final openOrders =
-      Provider.of<PortfolioAction>(context, listen: false).openOrders;
+  final transactions =
+      Provider.of<PortfolioAction>(context, listen: false).transactions;
   return Expanded(
     flex: 2,
     child: Container(
@@ -29,7 +30,7 @@ Widget OpenOrdersCard(BuildContext context) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Open Orders',
+            'Transactions',
             style: TextStyle(
               fontSize: 20,
               // fontFamily: 'Phosphate',
@@ -41,10 +42,9 @@ Widget OpenOrdersCard(BuildContext context) {
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   List<Widget> stonksCard = [];
-                  openOrders.forEach((element) {
-                    String price = element['type'] == 'market'
-                        ? 'Market'
-                        : element['limit_price'];
+                  transactions.forEach((element) {
+                    String condition =
+                        element.condition == Condition.Buy ? 'Buy' : 'Sell';
                     stonksCard.add(InkWell(
                       onTap: () {},
                       child: Container(
@@ -58,7 +58,7 @@ Widget OpenOrdersCard(BuildContext context) {
                         child: Row(
                           children: [
                             Text(
-                                ' ${element['qty']} ${element['symbol']} @ ${price}'),
+                                ' ${element.amount.toString()} ${element.ticker} @ ${element.price.toString()} - ${condition}'),
                           ],
                         ),
                       ),

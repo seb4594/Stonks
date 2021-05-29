@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 
 import 'package:stonks/Providers/PortfolioAction.dart';
 import 'package:stonks/Providers/senator.dart';
+import 'package:stonks/Providers/transaction.dart';
 
 import 'package:stonks/components/Dashboard/OpenPostions.dart';
-import 'package:stonks/components/Dashboard/openOrders.dart';
+import 'package:stonks/components/Dashboard/transactions.dart';
 import 'package:stonks/components/Dashboard/preformanceGraph.dart';
 import 'package:stonks/components/Dashboard/redditMentions.dart';
 import 'package:stonks/components/Dashboard/senatorHolds.dart';
@@ -91,7 +92,7 @@ class _DashBoardState extends State<DashBoard> {
                                     context, portfolio, stocks, _scaffoldKey),
                                 // PerformanceGraph(
                                 //     performanceData, portfolio, _scaffoldKey),
-                                OpenOrdersCard(context)
+                                transactions(context)
                               ],
                             ),
                           ),
