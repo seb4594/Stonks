@@ -55,14 +55,19 @@ class _OrderMenuState extends State<OrderMenu> {
     if (widget.condition == Condition.Buy) {
       Provider.of<PortfolioAction>(context, listen: false).placeBuyOrder(
           widget.searchKey,
-          widget.data[widget.searchKey][0]['c'],
+          widget.isCrypto
+              ? widget.data[widget.searchKey][0]['usd']
+              : widget.data[widget.searchKey][0]['c'],
           amountKey,
           widget.isCrypto ? 'TRUE' : 'FALSE');
     } else {
       Provider.of<PortfolioAction>(context, listen: false).placeSellOrder(
         widget.searchKey,
         amountKey,
-        widget.data[widget.searchKey][0]['c'],
+        widget.isCrypto
+            ? widget.data[widget.searchKey][0]['usd']
+            : widget.data[widget.searchKey][0]['c'],
+        widget.isCrypto ? 'TRUE' : 'FALSE',
       );
     }
     Navigator.of(context).pop();
@@ -79,6 +84,10 @@ class _OrderMenuState extends State<OrderMenu> {
   Widget OrderBar(double height, double width, BuildContext context) {
     Portfolio portfolio =
         Provider.of<PortfolioAction>(context, listen: false).activePorfolio;
+
+    final stockPrice = widget.isCrypto
+        ? widget.data[widget.searchKey][0]['usd']
+        : widget.data[widget.searchKey][0]['c'];
     return Container(
       margin: EdgeInsets.all(10),
       padding: EdgeInsets.all(10),
@@ -117,8 +126,7 @@ class _OrderMenuState extends State<OrderMenu> {
                         return 'Please valid value.';
                       } else {
                         if (portfolio.cash <
-                                (double.parse(value) *
-                                    widget.data[widget.searchKey][0]['c']) &&
+                                (double.parse(value) * stockPrice) &&
                             widget.condition == Condition.Buy) {
                           return 'Cash Available: ${portfolio.cash.toString()}';
                         } else {
@@ -155,7 +163,7 @@ class _OrderMenuState extends State<OrderMenu> {
     );
   }
 
-  Widget stockInfo(double height, double width) {
+  Widget stockInfo(double height, double width, bool isCrypto) {
     Map<String, dynamic> _day = widget.data[widget.searchKey][0];
 
     Widget _infoBar(String title, dynamic data) {
@@ -187,24 +195,43 @@ class _OrderMenuState extends State<OrderMenu> {
       ], borderRadius: BorderRadius.circular(10), color: Colors.white),
       width: Responsive.isMobile(context) ? width : width * .3,
       height: Responsive.isMobile(context) ? height * .3 : height,
-      child: Column(
-        children: [
-          Text(
-            '${widget.searchKey} Current Data',
-            style: TextStyle(fontSize: 30),
-          ),
-          Divider(),
-          _infoBar('Open', _day['o']),
-          Divider(),
-          _infoBar('Close', _day['c']),
-          Divider(),
-          _infoBar('Low', _day['l']),
-          Divider(),
-          _infoBar('High', _day['h']),
-          Divider(),
-          _infoBar('Volume', _day['v'])
-        ],
-      ),
+      child: isCrypto
+          ? Column(
+              children: [
+                Text(
+                  '${widget.searchKey.toUpperCase()} Current Data',
+                  style: TextStyle(fontSize: 30),
+                ),
+                Divider(),
+                _infoBar('Price', _day['usd']),
+                Divider(),
+                _infoBar('Market Cap', _day['usd_market_cap']),
+                Divider(),
+                _infoBar('Volume', _day['usd_24h_vol']),
+                Divider(),
+                _infoBar('Change', _day['usd_24h_change']),
+                Divider(),
+                // _infoBar('Time', DateTime(_day['last_updated_at']))
+              ],
+            )
+          : Column(
+              children: [
+                Text(
+                  '${widget.searchKey} Current Data',
+                  style: TextStyle(fontSize: 30),
+                ),
+                Divider(),
+                _infoBar('Open', _day['o']),
+                Divider(),
+                _infoBar('Close', _day['c']),
+                Divider(),
+                _infoBar('Low', _day['l']),
+                Divider(),
+                _infoBar('High', _day['h']),
+                Divider(),
+                _infoBar('Volume', _day['v'])
+              ],
+            ),
     );
   }
 
@@ -223,7 +250,7 @@ class _OrderMenuState extends State<OrderMenu> {
           ? ListView(
               children: [
                 OrderBar(height, width, context),
-                stockInfo(height, width)
+                stockInfo(height, width, widget.isCrypto)
               ],
             )
           : Row(
@@ -233,7 +260,7 @@ class _OrderMenuState extends State<OrderMenu> {
                     OrderBar(height, width, context),
                   ],
                 ),
-                stockInfo(height, width)
+                stockInfo(height, width, widget.isCrypto)
               ],
             ),
     );

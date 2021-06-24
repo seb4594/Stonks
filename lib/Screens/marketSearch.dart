@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +11,7 @@ import 'package:stonks/Providers/Stock.dart';
 import 'package:stonks/Providers/screenManager.dart';
 import 'package:stonks/core/widgets/OrderMenu.dart';
 import 'package:stonks/core/widgets/side_menu.dart';
+import 'package:stonks/core/widgets/stockChart/stockChart.dart';
 
 class MarketSearchPage extends StatefulWidget {
   @override
@@ -157,9 +161,9 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                                 future: _searchData,
                                 builder: (BuildContext context,
                                     AsyncSnapshot snapshot) {
-                                  print(isCrypto);
+                                  // print("isCrypto: $isCrypto");
                                   final data = snapshot.data;
-                                  print(data);
+                                  // print(data);
                                   if (snapshot.connectionState !=
                                       ConnectionState.done) {
                                     return Center(
@@ -267,31 +271,37 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
 
                                   return ListView(
                                     children: [
-                                      Container(
-                                        width: width,
-                                        height: height * .31,
-                                        color: Colors.grey[900],
-                                        padding: EdgeInsets.all(30),
-                                        child: CustomPaint(
-                                          size: Size(width, height * .4),
-                                          painter: StockCandleStickPainter(
-                                              stockData: snapshot.data['Bars']),
-                                        ),
-                                      ),
-                                      Container(
-                                        color: Colors.grey[850],
-                                        height: 10,
-                                      ),
-                                      Container(
-                                        color: Colors.grey[900],
-                                        width: width,
-                                        height: height * .1,
-                                        child: CustomPaint(
-                                          size: Size.infinite,
-                                          painter: StockVolumePainter(
-                                              stockData: snapshot.data['Bars']),
-                                        ),
-                                      ),
+                                      StockChartExample(snapshot.data['Bars']),
+                                      // Container(
+                                      //   width: width,
+                                      //   height: height * .31,
+                                      //   child: Expanded(
+                                      //       child: StonksLineChart(
+                                      //           snapshot.data['Bars'])),
+                                      // ),
+                                      // Container(
+                                      //   width: width,
+                                      //   height: height * .31,
+                                      //   color: Colors.grey[900],
+                                      //   padding: EdgeInsets.all(30),
+                                      //   child: CustomPaint(
+                                      //     size: Size(width, height * .4),
+                                      //     painter: StockCandleStickPainter(
+                                      //         stockData: snapshot.data['Bars']),
+                                      //   ),
+                                      // ),
+                                      // Container(
+                                      //     color: Colors.grey[850], height: 10),
+                                      // Container(
+                                      //   color: Colors.grey[900],
+                                      //   width: width,
+                                      //   height: height * .1,
+                                      //   child: CustomPaint(
+                                      //     size: Size.infinite,
+                                      //     painter: StockVolumePainter(
+                                      //         stockData: snapshot.data['Bars']),
+                                      //   ),
+                                      // ),
                                       Container(
                                         width: width,
                                         height: height * .4,
@@ -417,179 +427,180 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
   }
 }
 
-class StockVolumePainter extends CustomPainter {
-  StockVolumePainter({this.stockData})
-      : _gainPaint = Paint()..color = Colors.green.withOpacity(0.5),
-        _lossPaint = Paint()..color = Colors.red.withOpacity(0.5);
 
-  final BarData stockData;
-  final Paint _gainPaint;
-  final Paint _lossPaint;
+// class StockVolumePainter extends CustomPainter {
+//   StockVolumePainter({this.stockData})
+//       : _gainPaint = Paint()..color = Colors.green.withOpacity(0.5),
+//         _lossPaint = Paint()..color = Colors.red.withOpacity(0.5);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (stockData == null) {
-      return;
-    }
-    List<Bar> bars = _generateBars(size);
+//   final BarData stockData;
+//   final Paint _gainPaint;
+//   final Paint _lossPaint;
 
-    for (Bar bar in bars) {
-      canvas.drawRect(
-        Rect.fromLTWH(
-          bar.centerX - (bar.width / 2) + 0.0,
-          size.height - bar.height + 0.0,
-          bar.width + 0.0,
-          bar.height + 0.0,
-        ),
-        bar.paint,
-      );
-    }
-  }
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     if (stockData == null) {
+//       return;
+//     }
+//     List<Bar> bars = _generateBars(size);
 
-  List<Bar> _generateBars(Size availableSpace) {
-    final pixelPerTW = availableSpace.width / 301.0;
-    final pixelPerOrder = availableSpace.height / stockData.maxVolume() + 0.0;
+//     for (Bar bar in bars) {
+//       canvas.drawRect(
+//         Rect.fromLTWH(
+//           bar.centerX - (bar.width / 2) + 0.0,
+//           size.height - bar.height + 0.0,
+//           bar.width + 0.0,
+//           bar.height + 0.0,
+//         ),
+//         bar.paint,
+//       );
+//     }
+//   }
 
-    List<Bar> bars = [];
+//   List<Bar> _generateBars(Size availableSpace) {
+//     final pixelPerTW = availableSpace.width / 301.0;
+//     final pixelPerOrder = availableSpace.height / stockData.maxVolume() + 0.0;
 
-    for (int i = 0; i < stockData.timeWindows.length; i++) {
-      final Map window = stockData.timeWindows[i];
-      // print('WINDOW');
-      // print(window);
+//     List<Bar> bars = [];
 
-      bool isGain = false;
+//     for (int i = 0; i < stockData.timeWindows.length; i++) {
+//       final Map window = stockData.timeWindows[i];
+//       // print('WINDOW');
+//       // print(window);
 
-      if (i > 0 && window['c'] > stockData.timeWindows[i - 1]['c']) {
-        isGain = true;
-      }
+//       bool isGain = false;
 
-      bars.add(
-        Bar(
-            width: 5.0,
-            height: window['v'] * pixelPerOrder + 0.0,
-            centerX: (i + 1.00) * pixelPerTW + 0.0,
-            paint: isGain ? _gainPaint : _lossPaint),
-      );
-    }
+//       if (i > 0 && window['c'] > stockData.timeWindows[i - 1]['c']) {
+//         isGain = true;
+//       }
 
-    return bars;
-  }
+//       bars.add(
+//         Bar(
+//             width: 5.0,
+//             height: window['v'] * pixelPerOrder + 0.0,
+//             centerX: (i + 1.00) * pixelPerTW + 0.0,
+//             paint: isGain ? _gainPaint : _lossPaint),
+//       );
+//     }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-}
+//     return bars;
+//   }
 
-class StockCandleStickPainter extends CustomPainter {
-  StockCandleStickPainter({this.stockData})
-      : _wickPaint = Paint()..color = Colors.grey,
-        _gainPaint = Paint()..color = Colors.green,
-        _lossPaint = Paint()..color = Colors.red;
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
+//     return true;
+//   }
+// }
 
-  final BarData stockData;
-  final Paint _wickPaint;
-  final Paint _gainPaint;
-  final Paint _lossPaint;
-  final double _wickWidth = 1.0;
-  final double _candleWidth = 4.0;
+// class StockCandleStickPainter extends CustomPainter {
+//   StockCandleStickPainter({this.stockData})
+//       : _wickPaint = Paint()..color = Colors.grey,
+//         _gainPaint = Paint()..color = Colors.green,
+//         _lossPaint = Paint()..color = Colors.red;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    print(stockData.maxVolume());
-    print(stockData.high());
-    print(stockData.low());
+//   final BarData stockData;
+//   final Paint _wickPaint;
+//   final Paint _gainPaint;
+//   final Paint _lossPaint;
+//   final double _wickWidth = 1.0;
+//   final double _candleWidth = 4.0;
 
-    if (stockData == null) {
-      return;
-    }
-    List<CandleStick> candleSticks = _generateCandleSticks(size);
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     print(stockData.maxVolume());
+//     print(stockData.high());
+//     print(stockData.low());
 
-    for (CandleStick candleStick in candleSticks) {
-      canvas.drawRect(
-          Rect.fromLTRB(
-              candleStick.centerX - (_wickWidth / 2),
-              size.height - candleStick.wickHighY,
-              candleStick.centerX + (_wickWidth / 2),
-              size.height - candleStick.wickLowY),
-          _wickPaint);
+//     if (stockData == null) {
+//       return;
+//     }
+//     List<CandleStick> candleSticks = _generateCandleSticks(size);
 
-      canvas.drawRect(
-          Rect.fromLTRB(
-            candleStick.centerX - (_candleWidth / 2),
-            size.height - candleStick.candleHighY,
-            candleStick.centerX + (_candleWidth / 2),
-            size.height - candleStick.candleLowY,
-          ),
-          candleStick.candlePaint);
-    }
-  }
+//     for (CandleStick candleStick in candleSticks) {
+//       canvas.drawRect(
+//           Rect.fromLTRB(
+//               candleStick.centerX - (_wickWidth / 2),
+//               size.height - candleStick.wickHighY,
+//               candleStick.centerX + (_wickWidth / 2),
+//               size.height - candleStick.wickLowY),
+//           _wickPaint);
 
-  List<CandleStick> _generateCandleSticks(Size availableSpace) {
-    final pixelPerWindow = availableSpace.width / 301;
-    final pixelsPerDollar =
-        availableSpace.height / (stockData.high() - stockData.low());
+//       canvas.drawRect(
+//           Rect.fromLTRB(
+//             candleStick.centerX - (_candleWidth / 2),
+//             size.height - candleStick.candleHighY,
+//             candleStick.centerX + (_candleWidth / 2),
+//             size.height - candleStick.candleLowY,
+//           ),
+//           candleStick.candlePaint);
+//     }
+//   }
 
-    final List<CandleStick> candleSticks = [];
+//   List<CandleStick> _generateCandleSticks(Size availableSpace) {
+//     final pixelPerWindow = availableSpace.width / 301;
+//     final pixelsPerDollar =
+//         availableSpace.height / (stockData.high() - stockData.low());
 
-    for (int i = 0; i < 300; i++) {
-      final Map window = stockData.timeWindows[i];
+//     final List<CandleStick> candleSticks = [];
 
-      bool isGain = false;
+//     for (int i = 0; i < 300; i++) {
+//       final Map window = stockData.timeWindows[i];
 
-      if (i > 0 && window['c'] > stockData.timeWindows[i - 1]['c']) {
-        isGain = true;
-      }
+//       bool isGain = false;
 
-      candleSticks.add(
-        CandleStick(
-          centerX: (i + 1) * pixelPerWindow,
-          wickHighY: (window['h'] - stockData.low()) * pixelsPerDollar,
-          wickLowY: (window['l'] - stockData.low()) * pixelsPerDollar,
-          candleHighY: (window['o'] - stockData.low()) * pixelsPerDollar,
-          candleLowY: (window['c'] - stockData.low()) * pixelsPerDollar,
-          candlePaint: isGain ? _gainPaint : _lossPaint,
-        ),
-      );
-    }
+//       if (i > 0 && window['c'] > stockData.timeWindows[i - 1]['c']) {
+//         isGain = true;
+//       }
 
-    return candleSticks;
-  }
+//       candleSticks.add(
+//         CandleStick(
+//           centerX: (i + 1) * pixelPerWindow,
+//           wickHighY: (window['h'] - stockData.low()) * pixelsPerDollar,
+//           wickLowY: (window['l'] - stockData.low()) * pixelsPerDollar,
+//           candleHighY: (window['o'] - stockData.low()) * pixelsPerDollar,
+//           candleLowY: (window['c'] - stockData.low()) * pixelsPerDollar,
+//           candlePaint: isGain ? _gainPaint : _lossPaint,
+//         ),
+//       );
+//     }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-}
+//     return candleSticks;
+//   }
 
-class Bar {
-  Bar({
-    @required this.width,
-    @required this.height,
-    @required this.centerX,
-    @required this.paint,
-  });
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
+//     return true;
+//   }
+// }
 
-  final double width;
-  final double height;
-  final double centerX;
-  final Paint paint;
-}
+// class Bar {
+//   Bar({
+//     @required this.width,
+//     @required this.height,
+//     @required this.centerX,
+//     @required this.paint,
+//   });
 
-class CandleStick {
-  CandleStick({
-    @required this.centerX,
-    @required this.wickHighY,
-    @required this.wickLowY,
-    @required this.candleHighY,
-    @required this.candleLowY,
-    @required this.candlePaint,
-  });
+//   final double width;
+//   final double height;
+//   final double centerX;
+//   final Paint paint;
+// }
 
-  final double centerX;
-  final double wickHighY;
-  final double wickLowY;
-  final double candleHighY;
-  final double candleLowY;
-  final Paint candlePaint;
-}
+// class CandleStick {
+//   CandleStick({
+//     @required this.centerX,
+//     @required this.wickHighY,
+//     @required this.wickLowY,
+//     @required this.candleHighY,
+//     @required this.candleLowY,
+//     @required this.candlePaint,
+//   });
+
+//   final double centerX;
+//   final double wickHighY;
+//   final double wickLowY;
+//   final double candleHighY;
+//   final double candleLowY;
+//   final Paint candlePaint;
+// }

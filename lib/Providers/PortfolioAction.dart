@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:stonks/Providers/BarData.dart';
 import 'package:stonks/Providers/transaction.dart';
 
@@ -148,10 +146,10 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> placeSellOrder(
-      String symbol, double amount, double price) async {
+      String symbol, double amount, double price, String crypto) async {
     final time = DateTime.now().toIso8601String();
     final url =
-        'http://155.138.240.253/createSellOrder?email=$email&time=$time&symbol=$symbol&price=$price&amount=$amount';
+        'http://155.138.240.253/createSellOrder?email=$email&time=$time&symbol=$symbol&price=$price&amount=$amount&crypto=$crypto';
 
     try {
       final response = await http.get(url);
@@ -178,17 +176,20 @@ class PortfolioAction with ChangeNotifier {
 
     final date = DateTime.now().subtract(Duration(days: 7)).toIso8601String();
     final barUrl =
-        'https://data.alpaca.markets/v1/bars/15Min?symbols=$ticker&limit=300&after=$date';
+        'https://data.alpaca.markets/v1/bars/1D?symbols=$ticker&limit=60';
+    // 'https://data.alpaca.markets/v1/bars/15Min?symbols=$ticker&limit=300&after=$date';
 
     final resp = await http.get(barUrl, headers: headers);
     final extract = json.decode(resp.body) as Map;
     final timeFrames = extract['$ticker'] as List;
 
+    print(timeFrames);
+
     final url2 =
-        'https://0c9or3.deta.dev/read_upMentions?symbol=$ticker&time=1';
+        'http://155.138.240.253/reddit/read_upMentions?symbol=$ticker&time=1';
     final response2 = await http.get(url2);
     final extract2 = json.decode(response2.body) as List;
-    print(extractedData);
+    // print(extractedData);
 
     return {
       'CurrentData': extractedData,
@@ -227,25 +228,34 @@ class PortfolioAction with ChangeNotifier {
 
       openPositions.forEach(
         (stock) {
-          //// RENEW PREFORMANCE FOR EACH STOCK
-          lastEq = (lastEq + stock.amount * extractedData[stock.ticker][0]['c'])
-              .roundToDouble();
+          if (!stock.crypto) {
+            //// RENEW PREFORMANCE FOR EACH STOCK
+            lastEq =
+                (lastEq + stock.amount * extractedData[stock.ticker][0]['c'])
+                    .roundToDouble();
 
-          int stockIndex =
-              _stocks.indexWhere((element) => element.id == stock.id);
+            int stockIndex =
+                _stocks.indexWhere((element) => element.id == stock.id);
 
-          // _stocks.removeAt(stockIndex);
+            // _stocks.removeAt(stockIndex);
 
-          _stocks[stockIndex] = Stock(
-              amount: stock.amount,
-              company: stock.company,
-              condition: stock.condition,
-              id: stock.id,
-              price: stock.price,
-              ticker: stock.ticker,
-              time: stock.time,
-              crypto: stock.crypto,
-              livePrice: extractedData[stock.ticker][0]['c'] + 0.00);
+            _stocks[stockIndex] = Stock(
+                amount: stock.amount,
+                company: stock.company,
+                condition: stock.condition,
+                id: stock.id,
+                price: stock.price,
+                ticker: stock.ticker,
+                time: stock.time,
+                crypto: stock.crypto,
+                livePrice: extractedData[stock.ticker][0]['c'] + 0.00);
+          }
+          if (stock.crypto) {
+            String cryptoString = '';
+            cryptoString = cryptos.join(',');
+            final url =
+                'https://api.coingecko.com/api/v3/simple/price?ids=$stockString&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true';
+          }
         },
       );
 
@@ -294,7 +304,7 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> fetchReddit() async {
-    final url = 'https://0c9or3.deta.dev/';
+    final url = 'http://155.138.240.253/reddit';
     try {
       final resp = await http.get(url);
       final extract = json.decode(resp.body) as Map<String, dynamic>;
