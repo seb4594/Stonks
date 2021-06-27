@@ -9,6 +9,7 @@ import 'package:stonks/Providers/PortfolioAction.dart';
 
 import 'package:stonks/Providers/Stock.dart';
 import 'package:stonks/Providers/screenManager.dart';
+import 'package:stonks/core/responsive.dart';
 import 'package:stonks/core/widgets/OrderMenu.dart';
 import 'package:stonks/core/widgets/side_menu.dart';
 import 'package:stonks/core/widgets/stockChart/stockChart.dart';
@@ -104,7 +105,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
     return Scaffold(
       drawer: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 250), child: SideMenu()),
-      appBar: AppBar(),
+      appBar: Responsive.isDesktop(context) ? null : AppBar(),
       body: Container(
         child: Column(
           children: [
@@ -112,12 +113,13 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
               padding: EdgeInsets.only(right: 10, left: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Form(
                     key: _form,
                     child: Container(
-                      padding: EdgeInsets.only(left: 100),
-                      width: width * .6,
+                      padding: EdgeInsets.only(left: 20),
+                      width: width * .2,
                       child: TextFormField(
                         decoration: InputDecoration(labelText: 'Search'),
                         textInputAction: TextInputAction.search,
@@ -135,7 +137,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 100),
+                  SizedBox(width: 20),
                   ElevatedButton(
                       onPressed: () => _saveForm(context, isCrypto),
                       child: Text('Search'))
@@ -153,7 +155,7 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                         ? Container(
                             margin: EdgeInsets.only(top: 30),
                             width: double.infinity,
-                            height: height * .823,
+                            height: height - 81,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
                                 color: Colors.white),
@@ -239,10 +241,10 @@ class _MarketSearchPageState extends State<MarketSearchPage> {
                         : Container(
                             margin: EdgeInsets.only(top: 30),
                             width: double.infinity,
-                            height: height * .823,
+                            height: height - 81,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
-                                color: Colors.white),
+                                color: Colors.grey[900]),
                             child: FutureBuilder(
                               future: _searchData,
                               builder: (BuildContext context,

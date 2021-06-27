@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stonks/Providers/PortfolioAction.dart';
+import 'package:stonks/Providers/PreferenceProvider.dart';
 
 import 'package:stonks/core/responsive.dart';
+import 'package:stonks/core/widgets/stockChart/miniStockChart.dart';
 
 class RedditMentions extends StatefulWidget {
   @override
@@ -15,19 +17,22 @@ class _RedditMentionsState extends State<RedditMentions> {
     final size = MediaQuery.of(context).size;
     List<Map> mentions =
         Provider.of<PortfolioAction>(context).currentRedditMentions;
+    final themeColors = Provider.of<Prefrence>(context).themeColors;
+    final appTheme = Provider.of<Prefrence>(context).globalTheme;
     return Expanded(
       flex: 2,
       child: Container(
         margin: EdgeInsets.all(5),
         decoration: BoxDecoration(boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            spreadRadius: 1,
-            blurRadius: 7,
-            offset: Offset(0, 5),
-          )
-        ], borderRadius: BorderRadius.circular(10), color: Colors.white),
-        // color: Colors.grey,
+          appTheme == theme.Light
+              ? BoxShadow(
+                  color: Colors.grey,
+                  spreadRadius: 1,
+                  blurRadius: 7,
+                  offset: Offset(0, 5),
+                )
+              : BoxShadow()
+        ], borderRadius: BorderRadius.circular(10), color: themeColors[0]),
         width: Responsive.isMobile(context) ? size.width : size.width * .3,
         height: Responsive.isMobile(context) ? size.height * .6 : size.height,
         child: Column(
@@ -39,8 +44,8 @@ class _RedditMentionsState extends State<RedditMentions> {
               child: Text(
                 'Reddit Mentions',
                 style: TextStyle(
+                  color: themeColors[1],
                   fontSize: 20,
-                  // fontFamily: 'Phosphate',
                 ),
               ),
             ),
@@ -57,24 +62,14 @@ class _RedditMentionsState extends State<RedditMentions> {
                       //         listen: false)
                       //     .changePage('/positionDetail', [element]),
                       child: Card(
-                        // padding: EdgeInsets.only(left: 10, right: 10),
-                        // width: size.width,
-                        // height: 30,
                         margin: EdgeInsets.only(right: 5, left: 5, top: 5),
-                        // decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(5),
-                        //     color: Colors.blueGrey[100]),
                         child: ListTile(
-                          leading: CircleAvatar(
-                              // child: Image(
-                              //   image: NetworkImage(
-                              //       'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Tom_Carper%2C_official_portrait%2C_112th_Congress.jpg/220px-Tom_Carper%2C_official_portrait%2C_112th_Congress.jpg'),
-                              // ),
-                              ),
+                          // leading: miniChart(),
+                          leading: miniChart(mention['Bars']),
                           title: Text(
                               '${mention['symbol']}   -   Mentions - ${mention['count']}'),
-                          // subtitle: Text(
-                          //     ' ${transaction.name} ${transaction.label} ${transaction.transactionDate.toString().substring(0, 10)}'),
+                          subtitle: Text(
+                              '${mention["Change"].toStringAsFixed(2)} % Since last Week'),
                         ),
                       ),
                     ));

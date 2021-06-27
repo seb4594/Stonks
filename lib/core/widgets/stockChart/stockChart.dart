@@ -14,10 +14,10 @@ class StockChartExample extends StatefulWidget {
 }
 
 class _StockChartExampleState extends State<StockChartExample> {
-  final List<Color> _gradientColors = [
-    const Color(0xFF0087FF),
-    const Color(0xFF5620FF),
-  ];
+  // final List<Color> _gradientColors = [
+  //   Colors.white,
+  //   Colors.grey[100],
+  // ];
   final int _divider = 25;
   final int _leftLabelsCount = 6;
 
@@ -41,7 +41,7 @@ class _StockChartExampleState extends State<StockChartExample> {
       widget.stockData.timeWindows.forEach((points) {
         datums.add(Datum(
             close: points['c'] + 0.0,
-            date: DateTime.fromMillisecondsSinceEpoch(points['t'])));
+            date: DateTime.fromMicrosecondsSinceEpoch(points['t'])));
       });
 
       return datums;
@@ -73,12 +73,14 @@ class _StockChartExampleState extends State<StockChartExample> {
 
   LineChartData _mainData() {
     return LineChartData(
+      backgroundColor: Colors.grey[900],
       gridData: _gridData(),
       titlesData: FlTitlesData(
         bottomTitles: _bottomTitles(),
         leftTitles: _leftTitles(),
       ),
       borderData: FlBorderData(
+        show: false,
         border: Border.all(color: Colors.white12, width: 1),
       ),
       minX: _minX,
@@ -92,7 +94,7 @@ class _StockChartExampleState extends State<StockChartExample> {
   LineChartBarData _lineBarData() {
     return LineChartBarData(
       spots: _values,
-      colors: _gradientColors,
+      colors: [Colors.grey[900], Colors.white],
       colorStops: const [0.25, 0.5, 0.75],
       gradientFrom: const Offset(0.5, 0),
       gradientTo: const Offset(0.5, 1),
@@ -101,7 +103,7 @@ class _StockChartExampleState extends State<StockChartExample> {
       dotData: FlDotData(show: false),
       belowBarData: BarAreaData(
         show: true,
-        colors: _gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+        colors: [Colors.white, Colors.grey[700]],
         gradientColorStops: const [0.25, 0.5, 0.75],
         gradientFrom: const Offset(0.5, 0),
         gradientTo: const Offset(0.5, 1),
@@ -112,10 +114,10 @@ class _StockChartExampleState extends State<StockChartExample> {
   SideTitles _leftTitles() {
     return SideTitles(
       showTitles: true,
-      // textStyle: TextStyle(
-      //   color: Colors.white54,
-      //   fontSize: 14,
-      // ),
+      getTextStyles: (double foo) => TextStyle(
+        color: Colors.white54,
+        fontSize: 11,
+      ),
       getTitles: (value) =>
           NumberFormat.compactCurrency(symbol: '\$').format(value),
       reservedSize: 28,
@@ -127,10 +129,10 @@ class _StockChartExampleState extends State<StockChartExample> {
   SideTitles _bottomTitles() {
     return SideTitles(
       showTitles: true,
-      // textStyle: TextStyle(
-      //   color: Colors.white54,
-      //   fontSize: 14,
-      // ),
+      getTextStyles: (double foo) => TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+      ),
       getTitles: (value) {
         final DateTime date =
             DateTime.fromMillisecondsSinceEpoch(value.toInt());

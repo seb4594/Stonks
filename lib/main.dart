@@ -9,6 +9,7 @@ import 'package:stonks/Screens/marketSearch.dart';
 import 'package:stonks/Screens/positionDetailScreen.dart';
 import './Providers/AuthService.dart';
 import 'package:window_size/window_size.dart';
+import './Providers/PreferenceProvider.dart';
 import 'dart:io';
 
 void main() async {
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider(create: (_) => AuthService(FirebaseAuth.instance)),
         ChangeNotifierProvider(create: (context) => ScreenManager()),
+        ChangeNotifierProvider(create: (context) => Prefrence()),
         ChangeNotifierProxyProvider<AuthService, PortfolioAction>(
             create: null,
             update: (ctx, auth, oldStocks) => PortfolioAction(

@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import 'package:stonks/Providers/PortfolioAction.dart';
+import 'package:stonks/Providers/PreferenceProvider.dart';
 import 'package:stonks/Providers/senator.dart';
 import 'package:stonks/Providers/transaction.dart';
 
@@ -53,13 +54,14 @@ class _DashBoardState extends State<DashBoard> {
     final stocks = Provider.of<PortfolioAction>(context).currentStocks;
     final performanceData =
         Provider.of<PortfolioAction>(context).preformanceData;
+    final appTheme = Provider.of<Prefrence>(context).globalTheme;
     return Scaffold(
       key: _scaffoldKey,
       drawer: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 250), child: SideMenu()),
       body: Container(
         padding: EdgeInsets.only(top: kIsWeb ? kDefaultPadding : 0),
-        color: kBgDarkColor,
+        color: appTheme == theme.Dark ? Colors.grey[800] : Colors.grey[100],
         width: double.infinity,
         height: size.height,
         // padding: EdgeInsets.only(top: 20),

@@ -12,7 +12,8 @@ import 'dart:convert';
 
 class PortfolioAction with ChangeNotifier {
   PortfolioAction(this.userId, this._stocks);
-
+  // final apiUrl = '155.138.240.253';
+  final apiUrl = '127.0.0.1:8000';
   // final Future<String> futureAuth;
   final userId;
   final user = FirebaseAuth.instance;
@@ -59,18 +60,16 @@ class PortfolioAction with ChangeNotifier {
   Future<void> newPortfolio() async {
     final idToken = await user.currentUser.getIdToken();
     final portfolioUrl =
-        'http://155.138.240.253/newUser?name=$name&email=$email&cash=5000';
+        'http://$apiUrl/newUser?name=$name&email=$email&cash=5000';
     try {
       final response = await http.get(portfolioUrl);
     } catch (e) {}
   }
 
   Future<void> fetchPortfolio() async {
-    final transactionsUrl =
-        'http://155.138.240.253/fetchTransactions?email=$email';
-    final positionsUrl = 'http://155.138.240.253/fetchPositions?email=$email';
-    final accountUrl =
-        'http://155.138.240.253/fetchAccountDetails?email=$email';
+    final transactionsUrl = 'http://$apiUrl/fetchTransactions?email=$email';
+    final positionsUrl = 'http://$apiUrl/fetchPositions?email=$email';
+    final accountUrl = 'http://$apiUrl/fetchAccountDetails?email=$email';
 
     try {
       final transactions = await http.get(transactionsUrl);
@@ -136,7 +135,7 @@ class PortfolioAction with ChangeNotifier {
       String stock, double price, double amount, String crypto) async {
     final time = DateTime.now().toIso8601String();
     final url =
-        'http://155.138.240.253/createBuyOrder?email=$email&time=$time&symbol=$stock&price=$price&amount=$amount&crypto=$crypto';
+        'http://$apiUrl/createBuyOrder?email=$email&time=$time&symbol=$stock&price=$price&amount=$amount&crypto=$crypto';
 
     try {
       final response = await http.get(url);
@@ -149,7 +148,7 @@ class PortfolioAction with ChangeNotifier {
       String symbol, double amount, double price, String crypto) async {
     final time = DateTime.now().toIso8601String();
     final url =
-        'http://155.138.240.253/createSellOrder?email=$email&time=$time&symbol=$symbol&price=$price&amount=$amount&crypto=$crypto';
+        'http://$apiUrl/createSellOrder?email=$email&time=$time&symbol=$symbol&price=$price&amount=$amount&crypto=$crypto';
 
     try {
       final response = await http.get(url);
@@ -185,8 +184,7 @@ class PortfolioAction with ChangeNotifier {
 
     print(timeFrames);
 
-    final url2 =
-        'http://155.138.240.253/reddit/read_upMentions?symbol=$ticker&time=1';
+    final url2 = 'http://$apiUrl/reddit/read_upMentions?symbol=$ticker&time=1';
     final response2 = await http.get(url2);
     final extract2 = json.decode(response2.body) as List;
     // print(extractedData);
@@ -304,7 +302,7 @@ class PortfolioAction with ChangeNotifier {
   }
 
   Future<void> fetchReddit() async {
-    final url = 'http://155.138.240.253/reddit';
+    final url = 'http://$apiUrl/reddit';
     try {
       final resp = await http.get(url);
       final extract = json.decode(resp.body) as Map<String, dynamic>;
@@ -315,7 +313,12 @@ class PortfolioAction with ChangeNotifier {
 
       extract.forEach((key, value) {
         _redditMentions
-          ..add({'symbol': value['symbol'], 'count': value['count']});
+          ..add({
+            'symbol': value['symbol'],
+            'count': value['count'],
+            'Bars': value['Bars'],
+            "Change": value['Change']
+          });
       });
 
       notifyListeners();
@@ -330,7 +333,7 @@ class PortfolioAction with ChangeNotifier {
 // \___/_/|_| /_/_/    /_/  \____/
 
   Future<dynamic> getCryptoInfo(String ticker) async {
-    final url = 'http://155.138.240.253/crypto/fetchPrice?ticker=$ticker';
+    final url = 'http://$apiUrl/crypto/fetchPrice?ticker=$ticker';
 
     try {
       final resp = await http.get(url);

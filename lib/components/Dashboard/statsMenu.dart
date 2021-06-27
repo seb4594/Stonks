@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:stonks/Providers/Portfolio.dart';
+import 'package:stonks/Providers/PreferenceProvider.dart';
 import 'package:stonks/Providers/Stock.dart';
 import 'package:stonks/core/responsive.dart';
 
@@ -12,26 +14,31 @@ Widget StatsMenu(BuildContext context, Portfolio portfolio,
       ? MediaQuery.of(context).size.height * 0.3
       : MediaQuery.of(context).size.height;
 
+  final themeColors = Provider.of<Prefrence>(context).themeColors;
+  final altDark = Provider.of<Prefrence>(context).altDark;
+  final appTheme = Provider.of<Prefrence>(context).globalTheme;
+
   return Expanded(
     flex: 2,
     child: Container(
       margin: EdgeInsets.only(left: 5, top: 5, bottom: 5, right: 5),
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            spreadRadius: 1,
-            blurRadius: 7,
-            offset: Offset(0, 5),
-          )
-        ],
-        borderRadius: BorderRadius.circular(20),
-        // borderRadius: BorderRadius.only(
-        //   bottomLeft: Radius.circular(20),
-        //   bottomRight: Radius.circular(20),
-        // ),
-        color: Colors.blue,
-      ),
+          boxShadow: [
+            appTheme == theme.Light
+                ? BoxShadow(
+                    color: Colors.grey,
+                    spreadRadius: 1,
+                    blurRadius: 7,
+                    offset: Offset(0, 5),
+                  )
+                : BoxShadow()
+          ],
+          borderRadius: BorderRadius.circular(20),
+          // borderRadius: BorderRadius.only(
+          //   bottomLeft: Radius.circular(20),
+          //   bottomRight: Radius.circular(20),
+          // ),
+          color: Colors.blue[800]),
       width: width,
       height: height,
       child: Center(

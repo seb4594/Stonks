@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stonks/Providers/PortfolioAction.dart';
+import 'package:stonks/Providers/PreferenceProvider.dart';
 import 'package:stonks/Providers/screenManager.dart';
 import 'package:stonks/Providers/senator.dart';
 import 'package:stonks/core/responsive.dart';
@@ -16,18 +17,24 @@ class _SenatorHoldsState extends State<SenatorHolds> {
     final size = MediaQuery.of(context).size;
     List<Senator> senatorStocks =
         Provider.of<PortfolioAction>(context).currentSenatorStock;
+
+    final themeColors = Provider.of<Prefrence>(context).themeColors;
+    final appTheme = Provider.of<Prefrence>(context).globalTheme;
+
     return Expanded(
       flex: 2,
       child: Container(
         margin: EdgeInsets.all(5),
         decoration: BoxDecoration(boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            spreadRadius: 1,
-            blurRadius: 7,
-            offset: Offset(0, 5),
-          )
-        ], borderRadius: BorderRadius.circular(10), color: Colors.white),
+          appTheme == theme.Light
+              ? BoxShadow(
+                  color: Colors.grey,
+                  spreadRadius: 1,
+                  blurRadius: 7,
+                  offset: Offset(0, 5),
+                )
+              : BoxShadow()
+        ], borderRadius: BorderRadius.circular(10), color: themeColors[0]),
         // color: Colors.grey,
         width: Responsive.isMobile(context) ? size.width : size.width * .3,
         height: Responsive.isMobile(context) ? size.height * .6 : size.height,
@@ -40,6 +47,7 @@ class _SenatorHoldsState extends State<SenatorHolds> {
               child: Text(
                 'Senator Movements',
                 style: TextStyle(
+                  color: themeColors[1],
                   fontSize: 20,
                   // fontFamily: 'Phosphate',
                 ),
