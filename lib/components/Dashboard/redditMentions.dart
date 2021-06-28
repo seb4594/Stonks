@@ -50,6 +50,7 @@ class _RedditMentionsState extends State<RedditMentions> {
               ),
             ),
             Container(
+              // color: Colors.grey[300],
               padding: EdgeInsets.only(left: 10, right: 10),
               height: 320,
               child: ListView.builder(
@@ -62,6 +63,7 @@ class _RedditMentionsState extends State<RedditMentions> {
                       //         listen: false)
                       //     .changePage('/positionDetail', [element]),
                       child: Card(
+                        // color: Colors.grey[300],
                         margin: EdgeInsets.only(right: 5, left: 5, top: 5),
                         child: ListTile(
                           // leading: miniChart(),

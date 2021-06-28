@@ -182,17 +182,23 @@ class PortfolioAction with ChangeNotifier {
     final extract = json.decode(resp.body) as Map;
     final timeFrames = extract['$ticker'] as List;
 
-    print(timeFrames);
+    // print(timeFrames);
 
     final url2 = 'http://$apiUrl/reddit/read_upMentions?symbol=$ticker&time=1';
     final response2 = await http.get(url2);
     final extract2 = json.decode(response2.body) as List;
-    // print(extractedData);
+
+    final mentionsChartUrl =
+        'http://$apiUrl/reddit/mentionsChart?ticker=$ticker';
+    final mentionsChartResp = await http.get(mentionsChartUrl);
+    final mentionsChartDecode = json.decode(mentionsChartResp.body);
+    // // print(extractedData);
 
     return {
       'CurrentData': extractedData,
       'Bars': BarData(timeWindows: timeFrames),
-      'reddit': extract2
+      'reddit': extract2,
+      'redditChart': mentionsChartDecode
     };
   }
 
